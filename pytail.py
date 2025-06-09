@@ -134,7 +134,9 @@ def main() -> None:
             files_printed.extend(print_lines_from_files(sys.stdin))
         else:
             if standard_input := sys.stdin.readlines():
-                print_file_header(file="")
+                if Program.args.files:
+                    print_file_header(file="")
+
                 print_lines(standard_input, has_newlines=True)
 
         if Program.args.files:  # Process any additional files.
@@ -280,12 +282,13 @@ def print_lines_from_input() -> None:
         try:
             lines.append(input())
         except EOFError:
-            if not Program.args.follow:
-                eof = True  # --follow on standard input is an infinite loop until Ctrl-C.
-                print_file_header(file="")
-
+            print_file_header(file="")
             print_lines(lines, has_newlines=False)
             lines.clear()
+
+            # --follow on standard input is an infinite loop until Ctrl-C.
+            if not Program.args.follow:
+                eof = True
 
 
 if __name__ == "__main__":

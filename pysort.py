@@ -127,7 +127,9 @@ def main() -> None:
             sort_lines_from_files(sys.stdin)
         else:
             if standard_input := sys.stdin.readlines():
-                print_file_header(file="")
+                if Program.args.files:
+                    print_file_header(file="")
+
                 sort_lines(standard_input, has_newlines=True)
 
         if Program.args.files:  # Process any additional files.

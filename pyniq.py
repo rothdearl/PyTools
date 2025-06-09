@@ -106,7 +106,9 @@ def filter_matching_lines(lines: TextIO | list[str], *, has_newlines: bool, orig
 
             if can_print:
                 if not file_header_printed:
-                    print_file_header(origin_file)
+                    if origin_file is not None:
+                        print_file_header(origin_file)
+
                     file_header_printed = True
 
                 print(f"{group_count_str}{line}", end=print_end)
@@ -256,7 +258,7 @@ def main() -> None:
             filter_matching_lines_from_files(sys.stdin)
         else:
             if standard_input := sys.stdin.readlines():
-                filter_matching_lines(standard_input, has_newlines=True, origin_file="")
+                filter_matching_lines(standard_input, has_newlines=True, origin_file="" if Program.args.files else None)
 
         if Program.args.files:  # Process any additional files.
             filter_matching_lines_from_files(Program.args.files)

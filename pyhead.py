@@ -63,7 +63,9 @@ def main() -> None:
             print_lines_from_files(sys.stdin)
         else:
             if standard_input := sys.stdin.readlines():
-                print_file_header(file="")
+                if Program.args.files:
+                    print_file_header(file="")
+
                 print_lines(standard_input, has_newlines=True)
 
         if Program.args.files:  # Process any additional files.

@@ -106,9 +106,7 @@ def filter_matching_lines(lines: TextIO | list[str], *, has_newlines: bool, orig
 
             if can_print:
                 if not file_header_printed:
-                    if origin_file is not None:
-                        print_file_header(origin_file)
-
+                    print_file_header(origin_file)
                     file_header_printed = True
 
                 print(f"{group_count_str}{line}", end=print_end)
@@ -252,13 +250,16 @@ def main() -> None:
     # Ensure color is only True if --color=on and the output is to the terminal.
     Colors.on = Program.args.color == "on" and sys.stdout.isatty()
 
+    # Set --no-file-header to True if there are no files.
+    Program.args.no_file_header = not Program.args.files
+
     # Check if the input is being redirected.
     if not sys.stdin.isatty():
         if Program.args.xargs:  # --xargs
             filter_matching_lines_from_files(sys.stdin)
         else:
             if standard_input := sys.stdin.readlines():
-                filter_matching_lines(standard_input, has_newlines=True, origin_file="" if Program.args.files else None)
+                filter_matching_lines(standard_input, has_newlines=True, origin_file="")
 
         if Program.args.files:  # Process any additional files.
             filter_matching_lines_from_files(Program.args.files)
@@ -283,7 +284,7 @@ def parse_arguments() -> None:
     parser.add_argument("-c", "--count", action="store_true", help="prefix lines by the number of occurrences")
     parser.add_argument("-f", "--skip-fields", help="avoid comparing the first N fields", metavar="N", nargs=1,
                         type=int)
-    parser.add_argument("-H", "--no-file-name", action="store_true", help="suppress the file name prefix on output")
+    parser.add_argument("-H", "--no-file-header", action="store_true", help="suppress the file name header on output")
     parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore differences in case when comparing")
     parser.add_argument("-m", "--max-chars", help="compare no more than N characters", metavar="N", nargs=1, type=int)
     parser.add_argument("-s", "--skip-chars", help="avoid comparing the first N characters", metavar="N", nargs=1,
@@ -327,7 +328,7 @@ def print_file_header(file: str) -> None:
     :param file: The file.
     :return: None
     """
-    if not Program.args.no_file_name:  # --no-file-name
+    if not Program.args.no_file_header:  # --no-file-header
         file_name = os.path.relpath(file) if file else "(standard input)"
 
         if Colors.on:

@@ -121,15 +121,16 @@ def main() -> None:
     # Ensure color is only True if --color=on and the output is to the terminal.
     Colors.on = Program.args.color == "on" and sys.stdout.isatty()
 
+    # Set --no-file-header to True if there are no files.
+    Program.args.no_file_header = not Program.args.files
+
     # Check if the input is being redirected.
     if not sys.stdin.isatty():
         if Program.args.xargs:  # --xargs
             sort_lines_from_files(sys.stdin)
         else:
             if standard_input := sys.stdin.readlines():
-                if Program.args.files:
-                    print_file_header(file="")
-
+                print_file_header(file="")
                 sort_lines(standard_input, has_newlines=True)
 
         if Program.args.files:  # Process any additional files.
@@ -153,7 +154,7 @@ def parse_arguments() -> None:
     parser.add_argument("-b", "--ignore-blanks", action="store_true", help="ignore blanks when comparing")
     parser.add_argument("-f", "--skip-fields", help="avoid comparing the first N fields", metavar="N", nargs=1,
                         type=int)
-    parser.add_argument("-H", "--no-file-name", action="store_true", help="suppress the file name prefix on output")
+    parser.add_argument("-H", "--no-file-header", action="store_true", help="suppress the file name header on output")
     parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore differences in case when comparing")
     parser.add_argument("-m", "--max-chars", help="compare no more than N characters", metavar="N", nargs=1, type=int)
     parser.add_argument("-r", "--reverse", action="store_true", help="reverse the result of comparisons")
@@ -193,7 +194,7 @@ def print_file_header(file: str) -> None:
     :param file: The file.
     :return: None
     """
-    if not Program.args.no_file_name:  # --no-file-name
+    if not Program.args.no_file_header:  # --no-file-header
         file_name = os.path.relpath(file) if file else "(standard input)"
 
         if Colors.on:
@@ -290,7 +291,6 @@ def sort_lines_from_input() -> None:
         except EOFError:
             eof = True
 
-    print_file_header(file="")
     sort_lines(lines, has_newlines=False)
 
 

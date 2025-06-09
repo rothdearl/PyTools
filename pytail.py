@@ -128,15 +128,16 @@ def main() -> None:
     # Ensure --line-number is only True if --follow=False.
     Program.args.line_number = Program.args.line_number and not Program.args.follow
 
+    # Set --no-file-header to True if there are no files.
+    Program.args.no_file_header = not Program.args.files
+
     # Check if the input is being redirected.
     if not sys.stdin.isatty():
         if Program.args.xargs:  # --xargs
             files_printed.extend(print_lines_from_files(sys.stdin))
         else:
             if standard_input := sys.stdin.readlines():
-                if Program.args.files:
-                    print_file_header(file="")
-
+                print_file_header(file="")
                 print_lines(standard_input, has_newlines=True)
 
         if Program.args.files:  # Process any additional files.
@@ -161,7 +162,7 @@ def parse_arguments() -> None:
 
     parser.add_argument("files", help="files to print", metavar="FILES", nargs="*")
     parser.add_argument("-f", "--follow", action="store_true", help="output appended data as the file grows")
-    parser.add_argument("-H", "--no-file-name", action="store_true", help="suppress the file name prefix on output")
+    parser.add_argument("-H", "--no-file-header", action="store_true", help="suppress the file name header on output")
     parser.add_argument("-l", "--line-number", action="store_true", help="print line number with output lines")
     parser.add_argument("-n", "--lines", help="print the last or all but the first n lines", metavar="±n", nargs=1,
                         type=int)
@@ -195,7 +196,7 @@ def print_file_header(file: str) -> None:
     :param file: The file.
     :return: None
     """
-    if not Program.args.no_file_name:  # --no-file-name
+    if not Program.args.no_file_header:  # --no-file-header
         file_name = os.path.relpath(file) if file else "(standard input)"
         following = f" (following)" if Program.args.follow and file else ""
 
@@ -282,7 +283,6 @@ def print_lines_from_input() -> None:
         try:
             lines.append(input())
         except EOFError:
-            print_file_header(file="")
             print_lines(lines, has_newlines=False)
             lines.clear()
 

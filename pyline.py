@@ -103,13 +103,16 @@ def main() -> None:
     # Ensure color is only True if --color=on and the output is to the terminal.
     Colors.on = Program.args.color == "on" and sys.stdout.isatty()
 
+    # Set --no-file-header to True if there are no files.
+    Program.args.no_file_header = not Program.args.files
+
     # Check if the input is being redirected.
     if not sys.stdin.isatty():
         if Program.args.xargs:  # --xargs
             print_matches_in_files(sys.stdin)
         else:
             if standard_input := sys.stdin.readlines():
-                print_matches_in_lines(standard_input, origin_file="", has_newlines=True)
+                print_matches_in_lines(standard_input, has_newlines=True, origin_file="")
 
         if Program.args.files:  # Process any additional files.
             print_matches_in_files(Program.args.files)
@@ -132,7 +135,7 @@ def parse_arguments() -> None:
                         help="print only a count of matching lines per input file")
     parser.add_argument("-f", "--find", action="extend", help="find lines that match PATTERN", metavar="PATTERN",
                         nargs=1)
-    parser.add_argument("-H", "--no-file-name", action="store_true", help="suppress the file name prefix on output")
+    parser.add_argument("-H", "--no-file-header", action="store_true", help="suppress the file name header on output")
     parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case in patterns and input data")
     parser.add_argument("-I", "--invert-find", action="store_true", help="find non-matching lines")
     parser.add_argument("-n", "--line-number", action="store_true", help="print line number with output lines")
@@ -178,7 +181,7 @@ def print_matches_in_files(files: TextIO | list[str]) -> None:
                 print_error_message(f"{file}: is a directory")
             else:
                 with open(file, "r", encoding=encoding) as text:
-                    print_matches_in_lines(text, origin_file=file, has_newlines=True)
+                    print_matches_in_lines(text, has_newlines=True, origin_file=file)
         except FileNotFoundError:
             print_error_message(f"{file if file else "\"\""}: no such file or directory")
         except PermissionError:
@@ -205,15 +208,15 @@ def print_matches_in_input() -> None:
             if Program.args.count:
                 lines.append(line)
             else:
-                print_matches_in_lines([line], origin_file="", has_newlines=False)
+                print_matches_in_lines([line], has_newlines=False, origin_file="")
         except EOFError:
             eof = True
 
     if Program.args.count:  # --count
-        print_matches_in_lines(lines, origin_file="", has_newlines=False)
+        print_matches_in_lines(lines, has_newlines=False, origin_file="")
 
 
-def print_matches_in_lines(lines: TextIO | list[str], *, origin_file: str, has_newlines: bool) -> None:
+def print_matches_in_lines(lines: TextIO | list[str], *, has_newlines: bool, origin_file: str) -> None:
     """
     Prints matches found in lines.
     :param lines: The lines.
@@ -250,7 +253,7 @@ def print_matches_in_lines(lines: TextIO | list[str], *, origin_file: str, has_n
     if not Program.args.quiet:  # --quiet
         file_name = ""
 
-        if not Program.args.no_file_name:  # --no-file-name
+        if not Program.args.no_file_header:  # --no-file-header
             file_name = os.path.relpath(origin_file) if origin_file else "(standard input)"
 
             if Colors.on:

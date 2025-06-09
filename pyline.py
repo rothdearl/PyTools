@@ -104,7 +104,8 @@ def main() -> None:
     Colors.on = Program.args.color == "on" and sys.stdout.isatty()
 
     # Set --no-file-header to True if there are no files.
-    Program.args.no_file_header = not Program.args.files
+    if not Program.args.files:
+        Program.args.no_file_header = True
 
     # Check if the input is being redirected.
     if not sys.stdin.isatty():

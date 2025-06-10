@@ -16,8 +16,6 @@ import re
 import sys
 from typing import Final, TextIO, final
 
-from dateutil.parser import ParserError, parse
-
 
 @final
 class Colors:
@@ -59,37 +57,6 @@ class SortInfo:
     skip_fields: int = 0
 
 
-def get_character_compare_sequence(line: str) -> str:
-    """
-    Returns the character sequence from the line to use for comparing.
-    :param line: The line.
-    :return: The character sequence to use for comparing.
-    """
-    if Program.args.skip_fields:  # --skip-fields
-        line = " ".join(re.split(SortInfo.FIELD_PATTERN, line)[SortInfo.skip_fields:])
-
-    if Program.args.ignore_case:  # --ignore-case
-        line = line.casefold()
-
-    return line
-
-
-def get_date_sort_key(line: str) -> str:
-    """
-    Returns the date sort key.
-    :param line: The line.
-    :return: The date sort key.
-    """
-    line = get_character_compare_sequence(line)
-
-    try:
-        date = str(parse(line))
-    except ParserError:
-        date = line
-
-    return date
-
-
 def get_dictionary_sort_key(line: str) -> list[str]:
     """
     Returns the dictionary sort key.
@@ -112,12 +79,12 @@ def get_fields(line: str) -> list[str]:
 
     for index, field in enumerate(re.split(SortInfo.FIELD_PATTERN, line)):
         if field and index >= SortInfo.skip_fields:
-            fields.append(field.casefold() if Program.args.ignore_case else field)  # --ignore-case
+            fields.append(field.casefold())
 
     return fields
 
 
-def get_natural_sort_key(line: str) -> list[int | str]:
+def get_natural_sort_key(line: str) -> list[str]:
     """
     Returns the natural sort key.
     :param line: The line.
@@ -126,8 +93,11 @@ def get_natural_sort_key(line: str) -> list[int | str]:
     numbers_and_words = []
 
     for field in get_fields(line):
+        # Zero-pad integers so they sort numerically.
         if field.isdigit():
-            numbers_and_words.append(int(field))
+            field = f"{field:0>16}"
+
+        numbers_and_words.append(field)
 
     return numbers_and_words
 
@@ -142,10 +112,6 @@ def main() -> None:
 
     # Ensure Colors.on is only True if --color=on and the output is to the terminal.
     Colors.on = Program.args.color == "on" and sys.stdout.isatty()
-
-    # Set --ignore-case to True if --dictionary-sort=True or --natural-sort=True.
-    if Program.args.dictionary_sort or Program.args.natural_sort:
-        Program.args.ignore_case = True
 
     # Set --no-file-header to True if there are no files and --xargs=False.
     if not Program.args.files and not Program.args.xargs:
@@ -181,10 +147,7 @@ def parse_arguments() -> None:
     parser.add_argument("-f", "--skip-fields", help="avoid comparing the first N fields", metavar="N", nargs=1,
                         type=int)
     parser.add_argument("-H", "--no-file-header", action="store_true", help="suppress the file name header on output")
-    parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore differences in case when comparing")
     parser.add_argument("-r", "--reverse", action="store_true", help="reverse the result of comparisons")
-    sort_group.add_argument("-d", "--dictionary-sort", action="store_true", help="compare lines lexicographically")
-    sort_group.add_argument("-D", "--date-sort", action="store_true", help="compare dates from newest to oldest")
     sort_group.add_argument("-n", "--natural-sort", action="store_true",
                             help="compare words alphabetically and numbers numerically")
     sort_group.add_argument("-R", "--random-sort", action="store_true", help="randomize the result of comparisons")
@@ -251,16 +214,12 @@ def sort_lines(lines: list[str], *, has_newlines: bool) -> None:
     print_end = "" if has_newlines else "\n"
 
     # Sort lines.
-    if Program.args.date_sort:  # --date-sort
-        lines.sort(key=get_date_sort_key, reverse=Program.args.reverse)
-    elif Program.args.dictionary_sort:  # --dictionary-sort
-        lines.sort(key=get_dictionary_sort_key, reverse=Program.args.reverse)
-    elif Program.args.natural_sort:  # --natural-sort
+    if Program.args.natural_sort:  # --natural-sort
         lines.sort(key=get_natural_sort_key, reverse=Program.args.reverse)
     elif Program.args.random_sort:  # --random-sort
         random.shuffle(lines)
     else:
-        lines.sort(key=get_character_compare_sequence, reverse=Program.args.reverse)
+        lines.sort(key=get_dictionary_sort_key, reverse=Program.args.reverse)
 
     # Print lines.
     for line in lines:

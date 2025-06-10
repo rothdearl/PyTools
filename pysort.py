@@ -16,6 +16,8 @@ import re
 import sys
 from typing import Final, TextIO, final
 
+from dateutil.parser import ParserError, parse
+
 
 @final
 class Colors:
@@ -90,7 +92,14 @@ def get_date_sort_key(line: str) -> str:
     :param line: The line.
     :return: The date sort key.
     """
-    return line
+    line = get_character_compare_sequence(line)
+
+    try:
+        date = str(parse(line))
+    except ParserError:
+        date = line
+
+    return date
 
 
 def get_dictionary_sort_key(line: str) -> list[str]:
@@ -176,7 +185,7 @@ def parse_arguments() -> None:
     parser.add_argument("-s", "--skip-chars", help="avoid comparing the first N characters", metavar="N", nargs=1,
                         type=int)
     sort_group.add_argument("-d", "--dictionary-sort", action="store_true", help="compare lines lexicographically")
-    sort_group.add_argument("-D", "--date-sort", action="store_true", help="compare lines newest to oldest")
+    sort_group.add_argument("-D", "--date-sort", action="store_true", help="compare dates from newest to oldest")
     sort_group.add_argument("-n", "--natural-sort", action="store_true",
                             help="compare words alphabetically and numbers numerically")
     sort_group.add_argument("-R", "--random-sort", action="store_true", help="randomize the result of comparisons")

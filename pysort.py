@@ -95,7 +95,7 @@ def get_dictionary_order_key(line: str) -> list[str]:
 
     for word in [field for field in re.split(SortInfo.FIELD_PATTERN, line)]:
         if word:
-            words.append(word.casefold())
+            words.append(word)
 
     return words
 
@@ -125,6 +125,10 @@ def main() -> None:
     # Set --no-file-header to True if there are no files and --xargs=False.
     if not Program.args.files and not Program.args.xargs:
         Program.args.no_file_header = True
+
+    # Set --ignore-case to True if --dictionary-order=True.
+    if Program.args.ignore_case:
+        Program.args.dictionary_order = True
 
     # Check if the input is being redirected.
     if not sys.stdin.isatty():

@@ -4,7 +4,7 @@
 """
 Filename: pyline.py
 Author: Roth Earl
-Version: 1.0.0
+Version: 1.0.1
 Description: A program to find lines that match patterns.
 License: GNU GPLv3
 """
@@ -53,8 +53,8 @@ class Program:
     Class for managing program constants.
     """
     NAME: Final[str] = "pyline"
-    VERSION: Final[str] = "1.0.0"
-    args: argparse.Namespace
+    VERSION: Final[str] = "1.0.1"
+    args: argparse.Namespace = None
     has_errors: bool = False
 
 
@@ -100,11 +100,11 @@ def main() -> None:
     """
     parse_arguments()
 
-    # Ensure color is only True if --color=on and the output is to the terminal.
+    # Ensure Colors.on is only True if --color=on and the output is to the terminal.
     Colors.on = Program.args.color == "on" and sys.stdout.isatty()
 
-    # Set --no-file-header to True if there are no files.
-    if not Program.args.files:
+    # Set --no-file-header to True if there are no files and --xargs=False.
+    if not Program.args.files and not Program.args.xargs:
         Program.args.no_file_header = True
 
     # Check if the input is being redirected.
@@ -139,7 +139,7 @@ def parse_arguments() -> None:
     parser.add_argument("-H", "--no-file-header", action="store_true", help="suppress the file name header on output")
     parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case in patterns and input data")
     parser.add_argument("-I", "--invert-find", action="store_true", help="find non-matching lines")
-    parser.add_argument("-n", "--line-number", action="store_true", help="print line number with output lines")
+    parser.add_argument("-l", "--line-number", action="store_true", help="print line number with output lines")
     parser.add_argument("-q", "--quiet", "--silent", action="store_true", help="suppress all normal output")
     parser.add_argument("--color", choices=("on", "off"), default="on",
                         help="print the matched strings, file names, and line numbers in color")

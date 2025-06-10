@@ -4,7 +4,7 @@
 """
 Filename: pyc.py
 Author: Roth Earl
-Version: 1.0.0
+Version: 1.0.1
 Description: A program to print line, word, and character counts in files.
 License: GNU GPLv3
 """
@@ -59,8 +59,8 @@ class Program:
     Class for managing program constants.
     """
     NAME: Final[str] = "pyc"
-    VERSION: Final[str] = "1.0.0"
-    args: argparse.Namespace
+    VERSION: Final[str] = "1.0.1"
+    args: argparse.Namespace = None
     has_errors: bool = False
 
 
@@ -122,7 +122,7 @@ def main() -> None:
     parse_arguments()
     set_count_info_values()
 
-    # Ensure color is only True if --color=on and the output is to the terminal.
+    # Ensure Colors.on is only True if --color=on and the output is to the terminal.
     Colors.on = Program.args.color == "on" and sys.stdout.isatty()
 
     # Check if the input is being redirected.

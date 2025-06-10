@@ -4,7 +4,7 @@
 """
 Filename: pytail.py
 Author: Roth Earl
-Version: 1.0.0
+Version: 1.0.1
 Description: A program to print the last part of files.
 License: GNU GPLv3
 """
@@ -45,8 +45,8 @@ class Program:
     Class for managing program constants.
     """
     NAME: Final[str] = "pytail"
-    VERSION: Final[str] = "1.0.0"
-    args: argparse.Namespace
+    VERSION: Final[str] = "1.0.1"
+    args: argparse.Namespace = None
     has_errors: bool = False
 
 
@@ -122,14 +122,14 @@ def main() -> None:
 
     parse_arguments()
 
-    # Ensure color is only True if --color=on and the output is to the terminal.
+    # Ensure Colors.on is only True if --color=on and the output is to the terminal.
     Colors.on = Program.args.color == "on" and sys.stdout.isatty()
 
     # Ensure --line-number is only True if --follow=False.
     Program.args.line_number = Program.args.line_number and not Program.args.follow
 
-    # Set --no-file-header to True if there are no files.
-    if not Program.args.files:
+    # Set --no-file-header to True if there are no files and --xargs=False.
+    if not Program.args.files and not Program.args.xargs:
         Program.args.no_file_header = True
 
     # Check if the input is being redirected.

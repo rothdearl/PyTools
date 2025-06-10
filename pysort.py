@@ -84,11 +84,20 @@ def get_character_compare_sequence(line: str) -> str:
     return line
 
 
-def get_dictionary_order_key(line: str) -> list[str]:
+def get_date_sort_key(line: str) -> str:
     """
-    Returns the dictionary order key.
+    Returns the date sort key.
     :param line: The line.
-    :return: The dictionary order key.
+    :return: The date sort key.
+    """
+    return line
+
+
+def get_dictionary_sort_key(line: str) -> list[str]:
+    """
+    Returns the dictionary sort key.
+    :param line: The line.
+    :return: The dictionary sort key.
     """
     line = get_character_compare_sequence(line)
     words = []
@@ -100,11 +109,11 @@ def get_dictionary_order_key(line: str) -> list[str]:
     return words
 
 
-def get_natural_order_key(line: str) -> list[int | str]:
+def get_natural_sort_key(line: str) -> list[int | str]:
     """
-    Returns the natural order key.
+    Returns the natural sort key.
     :param line: The line.
-    :return: The natural order key.
+    :return: The natural sort key.
     """
     line = get_character_compare_sequence(line)
 
@@ -126,9 +135,9 @@ def main() -> None:
     if not Program.args.files and not Program.args.xargs:
         Program.args.no_file_header = True
 
-    # Set --ignore-case to True if --dictionary-order=True.
+    # Set --ignore-case to True if --dictionary-sort=True.
     if Program.args.ignore_case:
-        Program.args.dictionary_order = True
+        Program.args.dictionary_sort = True
 
     # Check if the input is being redirected.
     if not sys.stdin.isatty():
@@ -166,10 +175,11 @@ def parse_arguments() -> None:
     parser.add_argument("-r", "--reverse", action="store_true", help="reverse the result of comparisons")
     parser.add_argument("-s", "--skip-chars", help="avoid comparing the first N characters", metavar="N", nargs=1,
                         type=int)
-    sort_group.add_argument("-d", "--dictionary-order", action="store_true", help="compare lines lexicographically")
-    sort_group.add_argument("-n", "--natural-order", action="store_true",
+    sort_group.add_argument("-d", "--dictionary-sort", action="store_true", help="compare lines lexicographically")
+    sort_group.add_argument("-D", "--date-sort", action="store_true", help="compare lines newest to oldest")
+    sort_group.add_argument("-n", "--natural-sort", action="store_true",
                             help="compare words alphabetically and numbers numerically")
-    sort_group.add_argument("-R", "--random-order", action="store_true", help="randomize the result of comparisons")
+    sort_group.add_argument("-R", "--random-sort", action="store_true", help="randomize the result of comparisons")
     parser.add_argument("--color", choices=("on", "off"), default="on", help="print the file names in color")
     parser.add_argument("--iso", action="store_true", help="use iso-8859-1 instead of utf-8 when reading files")
     parser.add_argument("--xargs", action="store_true", help="read FILES from standard input")
@@ -241,12 +251,14 @@ def sort_lines(lines: list[str], *, has_newlines: bool) -> None:
     print_end = "" if has_newlines else "\n"
 
     # Sort lines.
-    if Program.args.random_order:  # --random-order
+    if Program.args.date_sort:  # --date-sort
+        lines.sort(key=get_date_sort_key, reverse=Program.args.reverse)
+    elif Program.args.dictionary_sort:  # --dictionary-sort
+        lines.sort(key=get_dictionary_sort_key, reverse=Program.args.reverse)
+    elif Program.args.natural_sort:  # --natural-sort
+        lines.sort(key=get_natural_sort_key, reverse=Program.args.reverse)
+    elif Program.args.random_sort:  # --random-sort
         random.shuffle(lines)
-    elif Program.args.dictionary_order:  # --dictionary-order
-        lines.sort(key=get_dictionary_order_key, reverse=Program.args.reverse)
-    elif Program.args.natural_order:  # --natural-order
-        lines.sort(key=get_natural_order_key, reverse=Program.args.reverse)
     else:
         lines.sort(key=get_character_compare_sequence, reverse=Program.args.reverse)
 

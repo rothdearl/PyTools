@@ -120,7 +120,7 @@ def get_dictionary_sort_key(line: str) -> list[str]:
     return words
 
 
-def get_natural_sort_key(line: str) -> list[int]:
+def get_natural_sort_key(line: str) -> list[int | str]:
     """
     Returns the natural sort key.
     :param line: The line.
@@ -131,14 +131,18 @@ def get_natural_sort_key(line: str) -> list[int]:
     # Strip commas and decimals.
     line = line.replace(",", "").replace(".", "")
 
-    # Collect numbers.
-    numbers = []
+    # Collect numbers and words.
+    numbers_and_words = []
 
-    for number in [s for s in re.split(SortInfo.DIGIT_PATTERN, line)]:
-        if number.isdigit():
-            numbers.append(int(number))
+    for token in [s for s in re.split(SortInfo.DIGIT_PATTERN, line)]:
+        if token.isdigit():
+            numbers_and_words.append(int(token))
+        else:
+            for word in [s for s in re.split(SortInfo.FIELD_PATTERN, token)]:
+                if word:
+                    numbers_and_words.append(word)
 
-    return numbers
+    return numbers_and_words
 
 
 def main() -> None:

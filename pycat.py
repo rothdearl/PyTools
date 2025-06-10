@@ -111,7 +111,7 @@ def parse_arguments() -> None:
     parser.add_argument("-S", "--spaces", action="store_true", help=f"display spaces as {Whitespace.SPACE}")
     parser.add_argument("-T", "--tabs", action="store_true", help=f"display tab characters as {Whitespace.TAB}")
     parser.add_argument("--color", choices=("on", "off"), default="on",
-                        help="display the spaces, tabs, end of line, and numbers in color")
+                        help="display the spaces, tabs, end of line and numbers in color")
     parser.add_argument("--iso", action="store_true", help="use iso-8859-1 instead of utf-8 when reading files")
     parser.add_argument("--xargs", action="store_true", help="read FILES from standard input")
     parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {Program.VERSION}")

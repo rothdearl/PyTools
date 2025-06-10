@@ -4,7 +4,7 @@
 """
 Filename: pysort.py
 Author: Roth Earl
-Version: 1.0.0
+Version: 1.0.1
 Description: A program to sort and print files to standard output.
 License: GNU GPLv3
 """
@@ -43,8 +43,8 @@ class Program:
     Class for managing program constants.
     """
     NAME: Final[str] = "pysort"
-    VERSION: Final[str] = "1.0.0"
-    args: argparse.Namespace
+    VERSION: Final[str] = "1.0.1"
+    args: argparse.Namespace = None
     has_errors: bool = False
 
 
@@ -84,19 +84,20 @@ def get_character_compare_sequence(line: str) -> str:
     return line
 
 
-def get_dictionary_order_key(line: str) -> str:
+def get_dictionary_order_key(line: str) -> list[str]:
     """
     Returns the dictionary order key.
     :param line: The line.
     :return: The dictionary order key.
     """
     line = get_character_compare_sequence(line)
+    words = []
 
-    # Ensure non-alphanumeric characters sort to the top.
-    if line and not line[0].isalnum():
-        line = f"{chr(0)}{line}"
+    for word in [field for field in re.split(SortInfo.FIELD_PATTERN, line)]:
+        if word:
+            words.append(word.casefold())
 
-    return line.casefold()
+    return words
 
 
 def get_natural_order_key(line: str) -> list[int | str]:
@@ -107,7 +108,7 @@ def get_natural_order_key(line: str) -> list[int | str]:
     """
     line = get_character_compare_sequence(line)
 
-    return [int(t) if t.isdigit() else t.casefold() for t in re.split(SortInfo.DIGIT_PATTERN, line)]
+    return [int(s) if s.isdigit() else s.casefold() for s in re.split(SortInfo.DIGIT_PATTERN, line)]
 
 
 def main() -> None:
@@ -118,11 +119,11 @@ def main() -> None:
     parse_arguments()
     set_sort_info_values()
 
-    # Ensure color is only True if --color=on and the output is to the terminal.
+    # Ensure Colors.on is only True if --color=on and the output is to the terminal.
     Colors.on = Program.args.color == "on" and sys.stdout.isatty()
 
-    # Set --no-file-header to True if there are no files.
-    if not Program.args.files:
+    # Set --no-file-header to True if there are no files and --xargs=False.
+    if not Program.args.files and not Program.args.xargs:
         Program.args.no_file_header = True
 
     # Check if the input is being redirected.

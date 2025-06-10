@@ -55,10 +55,7 @@ class SortInfo:
     """
     Class for managing sort constants.
     """
-    DIGIT_PATTERN: Final[str] = r"(\d+)"
     FIELD_PATTERN: Final[str] = r"\s+|\W+"
-    max_chars: int = 0
-    skip_chars: int = 0
     skip_fields: int = 0
 
 
@@ -68,17 +65,8 @@ def get_character_compare_sequence(line: str) -> str:
     :param line: The line.
     :return: The character sequence to use for comparing.
     """
-    if Program.args.ignore_blanks:  # --ignore-blanks
-        line = line.strip()
-
     if Program.args.skip_fields:  # --skip-fields
-        line = "".join(re.split(SortInfo.FIELD_PATTERN, line)[SortInfo.skip_fields:])
-
-    if Program.args.max_chars or Program.args.skip_chars:  # --max_chars or --skip_chars
-        start_index = SortInfo.skip_chars
-        end_index = start_index + SortInfo.max_chars if Program.args.max_chars else len(line)
-
-        line = line[start_index:end_index]
+        line = " ".join(re.split(SortInfo.FIELD_PATTERN, line)[SortInfo.skip_fields:])
 
     if Program.args.ignore_case:  # --ignore-case
         line = line.casefold()
@@ -108,16 +96,25 @@ def get_dictionary_sort_key(line: str) -> list[str]:
     :param line: The line.
     :return: The dictionary sort key.
     """
-    line = get_character_compare_sequence(line)
+    return get_fields(line)
 
-    # Collect words.
-    words = []
 
-    for word in [s for s in re.split(SortInfo.FIELD_PATTERN, line)]:
-        if word:
-            words.append(word)
+def get_fields(line: str) -> list[str]:
+    """
+    Returns the fields from the line.
+    :param line: The line.
+    :return: The fields from the line.
+    """
+    fields = []
 
-    return words
+    # Strip leading and trailing whitespace, commas, and decimals.
+    line = line.strip().replace(",", "").replace(".", "")
+
+    for index, field in enumerate(re.split(SortInfo.FIELD_PATTERN, line)):
+        if field and index >= SortInfo.skip_fields:
+            fields.append(field.casefold() if Program.args.ignore_case else field)  # --ignore-case
+
+    return fields
 
 
 def get_natural_sort_key(line: str) -> list[int | str]:
@@ -126,21 +123,11 @@ def get_natural_sort_key(line: str) -> list[int | str]:
     :param line: The line.
     :return: The natural sort key.
     """
-    line = get_character_compare_sequence(line)
-
-    # Strip commas and decimals.
-    line = line.replace(",", "").replace(".", "")
-
-    # Collect numbers and words.
     numbers_and_words = []
 
-    for token in [s for s in re.split(SortInfo.DIGIT_PATTERN, line)]:
-        if token.isdigit():
-            numbers_and_words.append(int(token))
-        else:
-            for word in [s for s in re.split(SortInfo.FIELD_PATTERN, token)]:
-                if word:
-                    numbers_and_words.append(word)
+    for field in get_fields(line):
+        if field.isdigit():
+            numbers_and_words.append(int(field))
 
     return numbers_and_words
 
@@ -156,13 +143,13 @@ def main() -> None:
     # Ensure Colors.on is only True if --color=on and the output is to the terminal.
     Colors.on = Program.args.color == "on" and sys.stdout.isatty()
 
+    # Set --ignore-case to True if --dictionary-sort=True or --natural-sort=True.
+    if Program.args.dictionary_sort or Program.args.natural_sort:
+        Program.args.ignore_case = True
+
     # Set --no-file-header to True if there are no files and --xargs=False.
     if not Program.args.files and not Program.args.xargs:
         Program.args.no_file_header = True
-
-    # Set --ignore-case to True if --dictionary-sort=True.
-    if Program.args.ignore_case:
-        Program.args.dictionary_sort = True
 
     # Check if the input is being redirected.
     if not sys.stdin.isatty():
@@ -191,15 +178,11 @@ def parse_arguments() -> None:
     sort_group = parser.add_mutually_exclusive_group()
 
     parser.add_argument("files", help="files to sort and print", metavar="FILES", nargs="*")
-    parser.add_argument("-b", "--ignore-blanks", action="store_true", help="ignore blanks when comparing")
     parser.add_argument("-f", "--skip-fields", help="avoid comparing the first N fields", metavar="N", nargs=1,
                         type=int)
     parser.add_argument("-H", "--no-file-header", action="store_true", help="suppress the file name header on output")
     parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore differences in case when comparing")
-    parser.add_argument("-m", "--max-chars", help="compare no more than N characters", metavar="N", nargs=1, type=int)
     parser.add_argument("-r", "--reverse", action="store_true", help="reverse the result of comparisons")
-    parser.add_argument("-s", "--skip-chars", help="avoid comparing the first N characters", metavar="N", nargs=1,
-                        type=int)
     sort_group.add_argument("-d", "--dictionary-sort", action="store_true", help="compare lines lexicographically")
     sort_group.add_argument("-D", "--date-sort", action="store_true", help="compare dates from newest to oldest")
     sort_group.add_argument("-n", "--natural-sort", action="store_true",
@@ -251,19 +234,11 @@ def set_sort_info_values() -> None:
     Sets the values to use for sorting lines.
     :return: None
     """
-    SortInfo.max_chars = 1 if not Program.args.max_chars else Program.args.max_chars[0]  # --max-chars
-    SortInfo.skip_chars = 0 if not Program.args.skip_chars else Program.args.skip_chars[0]  # --skip-chars
     SortInfo.skip_fields = 0 if not Program.args.skip_fields else Program.args.skip_fields[0]  # --skip-fields
 
     # Validate the values.
     if SortInfo.skip_fields < 0:
         print_error_message(f"skip fields ({SortInfo.skip_fields}) cannot be less than 0", raise_system_exit=True)
-
-    if SortInfo.skip_chars < 0:
-        print_error_message(f"skip characters ({SortInfo.skip_chars}) cannot be less than 0", raise_system_exit=True)
-
-    if SortInfo.max_chars < 1:
-        print_error_message(f"max characters ({SortInfo.max_chars}) cannot be less than 1", raise_system_exit=True)
 
 
 def sort_lines(lines: list[str], *, has_newlines: bool) -> None:

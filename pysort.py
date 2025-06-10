@@ -109,16 +109,18 @@ def get_dictionary_sort_key(line: str) -> list[str]:
     :return: The dictionary sort key.
     """
     line = get_character_compare_sequence(line)
+
+    # Collect words.
     words = []
 
-    for word in [field for field in re.split(SortInfo.FIELD_PATTERN, line)]:
+    for word in [s for s in re.split(SortInfo.FIELD_PATTERN, line)]:
         if word:
             words.append(word)
 
     return words
 
 
-def get_natural_sort_key(line: str) -> list[int | str]:
+def get_natural_sort_key(line: str) -> list[int]:
     """
     Returns the natural sort key.
     :param line: The line.
@@ -126,7 +128,17 @@ def get_natural_sort_key(line: str) -> list[int | str]:
     """
     line = get_character_compare_sequence(line)
 
-    return [int(s) if s.isdigit() else s.casefold() for s in re.split(SortInfo.DIGIT_PATTERN, line)]
+    # Strip commas and decimals.
+    line = line.replace(",", "").replace(".", "")
+
+    # Collect numbers.
+    numbers = []
+
+    for number in [s for s in re.split(SortInfo.DIGIT_PATTERN, line)]:
+        if number.isdigit():
+            numbers.append(int(number))
+
+    return numbers
 
 
 def main() -> None:

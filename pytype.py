@@ -99,7 +99,7 @@ def parse_arguments() -> None:
     parser.add_argument("files", help="files to print", metavar="FILES", nargs="*")
     parser.add_argument("-H", "--no-file-header", action="store_true", help="suppress the file name header on output")
     parser.add_argument("-n", "--lines", help="print only N lines", metavar="N", nargs=1, type=int)
-    parser.add_argument("-N", "--line-numbers", action="store_true", help="print line numbers with output lines")
+    parser.add_argument("-N", "--line-number", action="store_true", help="print line number with output lines")
     parser.add_argument("-s", "--line-start", help="print at line n from the head or tail", metavar="±n", nargs=1,
                         type=int)
     parser.add_argument("--color", choices=("on", "off"), default="on",

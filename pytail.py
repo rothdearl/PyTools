@@ -4,7 +4,7 @@
 """
 Filename: pytail.py
 Author: Roth Earl
-Version: 1.0.1
+Version: 1.0.2
 Description: A program to print the last part of files.
 License: GNU GPLv3
 """
@@ -45,7 +45,7 @@ class Program:
     Class for managing program constants.
     """
     NAME: Final[str] = "pytail"
-    VERSION: Final[str] = "1.0.1"
+    VERSION: Final[str] = "1.0.2"
     args: argparse.Namespace = None
     has_errors: bool = False
 
@@ -164,9 +164,9 @@ def parse_arguments() -> None:
     parser.add_argument("files", help="files to print", metavar="FILES", nargs="*")
     parser.add_argument("-f", "--follow", action="store_true", help="output appended data as the file grows")
     parser.add_argument("-H", "--no-file-header", action="store_true", help="suppress the file name header on output")
-    parser.add_argument("-l", "--line-number", action="store_true", help="print line number with output lines")
     parser.add_argument("-n", "--lines", help="print the last or all but the first n lines", metavar="±n", nargs=1,
                         type=int)
+    parser.add_argument("-N", "--line-numbers", action="store_true", help="print line numbers with output lines")
     parser.add_argument("--color", choices=("on", "off"), default="on", help="print the file headers in color")
     parser.add_argument("--iso", action="store_true", help="use iso-8859-1 instead of utf-8 when reading files")
     parser.add_argument("--xargs", action="store_true", help="read FILES from standard input")

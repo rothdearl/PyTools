@@ -4,7 +4,7 @@
 """
 Filename: pyline.py
 Author: Roth Earl
-Version: 1.0.1
+Version: 1.0.2
 Description: A program to find lines that match patterns.
 License: GNU GPLv3
 """
@@ -53,7 +53,7 @@ class Program:
     Class for managing program constants.
     """
     NAME: Final[str] = "pyline"
-    VERSION: Final[str] = "1.0.1"
+    VERSION: Final[str] = "1.0.2"
     args: argparse.Namespace = None
     has_errors: bool = False
 
@@ -139,7 +139,7 @@ def parse_arguments() -> None:
     parser.add_argument("-H", "--no-file-header", action="store_true", help="suppress the file name header on output")
     parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case in patterns and input data")
     parser.add_argument("-I", "--invert-find", action="store_true", help="find non-matching lines")
-    parser.add_argument("-l", "--line-number", action="store_true", help="print line number with output lines")
+    parser.add_argument("-n", "--line-numbers", action="store_true", help="print line numbers with output lines")
     parser.add_argument("-q", "--quiet", "--silent", action="store_true", help="suppress all normal output")
     parser.add_argument("--color", choices=("on", "off"), default="on",
                         help="print the matched strings, file names and line numbers in color")

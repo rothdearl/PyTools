@@ -4,7 +4,7 @@
 """
 Filename: pysort.py
 Author: Roth Earl
-Version: 1.0.1
+Version: 0.1.2
 Description: A program to sort and print files to standard output.
 License: GNU GPLv3
 """

@@ -5,7 +5,7 @@
 Filename: pyc.py
 Author: Roth Earl
 Version: 1.0.1
-Description: A program to print line, word, and character counts in files.
+Description: A program to print line, word and character counts in files.
 License: GNU GPLv3
 """
 
@@ -91,7 +91,7 @@ def add_stats_to_totals(stats: Stats) -> None:
 
 def get_stats(text: TextIO | list[str]) -> Stats:
     """
-    Returns the counts for the lines, words, characters, and the maximum line length in the text.
+    Returns the counts for the lines, words, characters and the maximum line length in the text.
     :param text: The text.
     :return: The stats.
     """
@@ -116,7 +116,7 @@ def get_stats(text: TextIO | list[str]) -> Stats:
 
 def main() -> None:
     """
-    A program to print line, word, and character counts in files.
+    A program to print line, word and character counts in files.
     :return: None
     """
     parse_arguments()
@@ -154,7 +154,7 @@ def parse_arguments() -> None:
     Parses the command line arguments to get the program options.
     :return: None
     """
-    parser = argparse.ArgumentParser(allow_abbrev=False, description="print line, word, and character counts in FILES",
+    parser = argparse.ArgumentParser(allow_abbrev=False, description="print line, word and character counts in FILES",
                                      epilog="with no FILES, read standard input")
 
     parser.add_argument("files", help="files to count", metavar="FILES", nargs="*")
@@ -285,7 +285,7 @@ def set_count_info_values() -> None:
             CountInfo.OPTIONS[index] = True
             CountInfo.options_count += 1
 
-    # If no stat options, default to lines, words, and characters.
+    # If no stat options, default to lines, words and characters.
     if not CountInfo.options_count:
         CountInfo.OPTIONS[StatIndexes.LINES] = True
         CountInfo.OPTIONS[StatIndexes.WORDS] = True

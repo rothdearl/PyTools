@@ -111,7 +111,7 @@ def get_fields(line: str, field_pattern: str, *, strip_number_separators: bool =
     # Strip leading and trailing whitespace.
     line = line.strip()
 
-    # Strip commas, and decimals.
+    # Strip commas and decimals.
     if strip_number_separators:
         line = line.replace(",", "").replace(".", "")
 

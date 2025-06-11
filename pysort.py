@@ -4,7 +4,7 @@
 """
 Filename: pysort.py
 Author: Roth Earl
-Version: 0.1.2
+Version: 0.1.3
 Description: A program to sort and print files to standard output.
 License: GNU GPLv3
 """
@@ -15,6 +15,8 @@ import random
 import re
 import sys
 from typing import Final, TextIO, final
+
+from dateutil.parser import ParserError, parse
 
 
 @final
@@ -38,23 +40,53 @@ class ExitCodes:
 
 
 @final
+class FieldInfo:
+    """
+    Class for managing field constants.
+    """
+    DATE_PATTERN: Final[str] = r"[\f\r\n\t\v]"  # All whitespace except spaces.
+    DEFAULT_PATTERN: Final[str] = r"[ ]"  # All spaces.
+    WORDS_PATTERN: Final[str] = r"\s+|\W+"  # All whitespace and non-words.
+    skip_fields: int = 0
+
+
+@final
 class Program:
     """
     Class for managing program constants.
     """
     NAME: Final[str] = "pysort"
-    VERSION: Final[str] = "1.0.1"
+    VERSION: Final[str] = "0.1.3"
     args: argparse.Namespace = None
     has_errors: bool = False
 
 
-@final
-class SortInfo:
+def get_date_sort_key(line: str) -> str:
     """
-    Class for managing sort constants.
+    Returns the date sort key.
+    :param line: The line.
+    :return: The date sort key.
     """
-    FIELD_PATTERN: Final[str] = r"\s+|\W+"
-    skip_fields: int = 0
+    fields = get_fields(line, FieldInfo.DATE_PATTERN)
+
+    try:
+        if fields:
+            date = str(parse(fields[0]))
+        else:
+            date = line
+    except ParserError:
+        date = line
+
+    return date
+
+
+def get_default_sort_key(line: str) -> list[str]:
+    """
+    Returns the default sort key.
+    :param line: The line.
+    :return: The default sort key.
+    """
+    return get_fields(line, FieldInfo.DEFAULT_PATTERN)
 
 
 def get_dictionary_sort_key(line: str) -> list[str]:
@@ -63,23 +95,29 @@ def get_dictionary_sort_key(line: str) -> list[str]:
     :param line: The line.
     :return: The dictionary sort key.
     """
-    return get_fields(line)
+    return get_fields(line, FieldInfo.WORDS_PATTERN)
 
 
-def get_fields(line: str) -> list[str]:
+def get_fields(line: str, field_pattern: str, *, strip_number_separators: bool = False) -> list[str]:
     """
-    Returns the fields from the line.
+    Returns a list of fields from the line.
     :param line: The line.
-    :return: The fields from the line.
+    :param field_pattern: The pattern for getting fields.
+    :param strip_number_separators: Whether to strip number separators (commas and decimals).
+    :return: A list of fields from the line.
     """
     fields = []
 
-    # Strip leading and trailing whitespace, commas, and decimals.
-    line = line.strip().replace(",", "").replace(".", "")
+    # Strip leading and trailing whitespace.
+    line = line.strip()
 
-    for index, field in enumerate(re.split(SortInfo.FIELD_PATTERN, line)):
-        if field and index >= SortInfo.skip_fields:
-            fields.append(field.casefold())
+    # Strip commas, and decimals.
+    if strip_number_separators:
+        line = line.replace(",", "").replace(".", "")
+
+    for index, field in enumerate(re.split(field_pattern, line)):
+        if field and index >= FieldInfo.skip_fields:
+            fields.append(field.casefold() if Program.args.ignore_case else field)  # --ignore-case
 
     return fields
 
@@ -92,10 +130,10 @@ def get_natural_sort_key(line: str) -> list[str]:
     """
     numbers_and_words = []
 
-    for field in get_fields(line):
+    for field in get_fields(line, FieldInfo.WORDS_PATTERN, strip_number_separators=True):
         # Zero-pad integers so they sort numerically.
         if field.isdigit():
-            field = f"{field:0>16}"
+            field = f"{field:0>20}"
 
         numbers_and_words.append(field)
 
@@ -112,6 +150,10 @@ def main() -> None:
 
     # Ensure Colors.on is only True if --color=on and the output is to the terminal.
     Colors.on = Program.args.color == "on" and sys.stdout.isatty()
+
+    # Set --ignore-case to True if --dictionary-sort=True or --natural-sort=True.
+    if Program.args.dictionary_sort or Program.args.natural_sort:
+        Program.args.ignore_case = True
 
     # Set --no-file-header to True if there are no files and --xargs=False.
     if not Program.args.files and not Program.args.xargs:
@@ -144,10 +186,14 @@ def parse_arguments() -> None:
     sort_group = parser.add_mutually_exclusive_group()
 
     parser.add_argument("files", help="files to sort and print", metavar="FILES", nargs="*")
+    parser.add_argument("-b", "--no-blank", action="store_true", help="suppress blank lines")
     parser.add_argument("-f", "--skip-fields", help="avoid comparing the first N fields", metavar="N", nargs=1,
                         type=int)
     parser.add_argument("-H", "--no-file-header", action="store_true", help="suppress the file name header on output")
+    parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore differences in case when comparing")
     parser.add_argument("-r", "--reverse", action="store_true", help="reverse the result of comparisons")
+    sort_group.add_argument("-d", "--dictionary-sort", action="store_true", help="compare lines lexicographically")
+    sort_group.add_argument("-D", "--date-sort", action="store_true", help="compare dates from newest to oldest")
     sort_group.add_argument("-n", "--natural-sort", action="store_true",
                             help="compare words alphabetically and numbers numerically")
     sort_group.add_argument("-R", "--random-sort", action="store_true", help="randomize the result of comparisons")
@@ -197,11 +243,11 @@ def set_sort_info_values() -> None:
     Sets the values to use for sorting lines.
     :return: None
     """
-    SortInfo.skip_fields = 0 if not Program.args.skip_fields else Program.args.skip_fields[0]  # --skip-fields
+    FieldInfo.skip_fields = 0 if not Program.args.skip_fields else Program.args.skip_fields[0]  # --skip-fields
 
     # Validate the values.
-    if SortInfo.skip_fields < 0:
-        print_error_message(f"skip fields ({SortInfo.skip_fields}) cannot be less than 0", raise_system_exit=True)
+    if FieldInfo.skip_fields < 0:
+        print_error_message(f"skip fields ({FieldInfo.skip_fields}) cannot be less than 0", raise_system_exit=True)
 
 
 def sort_lines(lines: list[str], *, has_newlines: bool) -> None:
@@ -214,16 +260,23 @@ def sort_lines(lines: list[str], *, has_newlines: bool) -> None:
     print_end = "" if has_newlines else "\n"
 
     # Sort lines.
-    if Program.args.natural_sort:  # --natural-sort
+    if Program.args.date_sort:  # --date-sort
+        lines.sort(key=get_date_sort_key, reverse=Program.args.reverse)
+    elif Program.args.dictionary_sort:  # --dictionary-sort
+        lines.sort(key=get_dictionary_sort_key, reverse=Program.args.reverse)
+    elif Program.args.natural_sort:  # --natural-sort
         lines.sort(key=get_natural_sort_key, reverse=Program.args.reverse)
     elif Program.args.random_sort:  # --random-sort
         random.shuffle(lines)
     else:
-        lines.sort(key=get_dictionary_sort_key, reverse=Program.args.reverse)
+        lines.sort(key=get_default_sort_key, reverse=Program.args.reverse)
 
     # Print lines.
     for line in lines:
-        print(line, end=print_end)
+        can_print = False if Program.args.no_blank and not line.rstrip() else True  # --no-blank
+
+        if can_print:
+            print(line, end=print_end)
 
 
 def sort_lines_from_files(files: TextIO | list[str]) -> None:

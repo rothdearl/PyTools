@@ -70,6 +70,9 @@ def get_fields(line: str, field_pattern: str) -> list[str]:
     """
     fields = []
 
+    # Strip leading and trailing whitespace.
+    line = line.strip()
+
     # Split line into fields.
     for field in re.split(field_pattern, line):
         if field:

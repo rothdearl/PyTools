@@ -349,7 +349,7 @@ def set_match_info_values() -> None:
     MatchInfo.skip_chars = 0 if not Program.args.skip_chars else Program.args.skip_chars[0]  # --skip-chars
     MatchInfo.skip_fields = 0 if not Program.args.skip_fields else Program.args.skip_fields[0]  # --skip-fields
 
-    # Validate the values.
+    # Validate the match values.
     if MatchInfo.skip_fields < 0:
         print_error_message(f"skip fields ({MatchInfo.skip_fields}) cannot be less than 0", raise_system_exit=True)
 

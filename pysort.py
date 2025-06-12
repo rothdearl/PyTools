@@ -4,7 +4,7 @@
 """
 Filename: pysort.py
 Author: Roth Earl
-Version: 0.1.3
+Version: 0.1.4
 Description: A program to sort and print files to standard output.
 License: GNU GPLv3
 """
@@ -46,7 +46,7 @@ class FieldInfo:
     """
     DATE_PATTERN: Final[str] = r"[\f\r\n\t\v]"  # All whitespace except spaces.
     DEFAULT_PATTERN: Final[str] = r"[ ]"  # All spaces.
-    WORDS_PATTERN: Final[str] = r"\s+|\W+"  # All whitespace and non-words.
+    WORD_PATTERN: Final[str] = r"\s+|\W+"  # All whitespace and non-words.
     skip_fields: int = 0
 
 
@@ -56,7 +56,7 @@ class Program:
     Class for managing program constants.
     """
     NAME: Final[str] = "pysort"
-    VERSION: Final[str] = "0.1.3"
+    VERSION: Final[str] = "0.1.4"
     args: argparse.Namespace = None
     has_errors: bool = False
 
@@ -95,7 +95,7 @@ def get_dictionary_sort_key(line: str) -> list[str]:
     :param line: The line.
     :return: The dictionary sort key.
     """
-    return get_fields(line, FieldInfo.WORDS_PATTERN)
+    return get_fields(line, FieldInfo.WORD_PATTERN)
 
 
 def get_fields(line: str, field_pattern: str, *, strip_number_separators: bool = False) -> list[str]:
@@ -130,7 +130,7 @@ def get_natural_sort_key(line: str) -> list[str]:
     """
     numbers_and_words = []
 
-    for field in get_fields(line, FieldInfo.WORDS_PATTERN, strip_number_separators=True):
+    for field in get_fields(line, FieldInfo.WORD_PATTERN, strip_number_separators=True):
         # Zero-pad integers so they sort numerically.
         if field.isdigit():
             field = f"{field:0>20}"
@@ -146,7 +146,7 @@ def main() -> None:
     :return: None
     """
     parse_arguments()
-    set_sort_info_values()
+    set_field_info_values()
 
     # Ensure Colors.on is only True if --color=on and the output is to the terminal.
     Colors.on = Program.args.color == "on" and sys.stdout.isatty()
@@ -238,14 +238,14 @@ def print_file_header(file: str) -> None:
         print(file_name)
 
 
-def set_sort_info_values() -> None:
+def set_field_info_values() -> None:
     """
     Sets the values to use for sorting lines.
     :return: None
     """
     FieldInfo.skip_fields = 0 if not Program.args.skip_fields else Program.args.skip_fields[0]  # --skip-fields
 
-    # Validate the values.
+    # Validate the field values.
     if FieldInfo.skip_fields < 0:
         print_error_message(f"skip fields ({FieldInfo.skip_fields}) cannot be less than 0", raise_system_exit=True)
 

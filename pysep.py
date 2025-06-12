@@ -125,7 +125,7 @@ def parse_arguments() -> None:
     parser.add_argument("-f", "--field-start", help="print at field N", metavar="N", nargs=1, type=int)
     parser.add_argument("-H", "--no-file-header", action="store_true", help="suppress the file name header on output")
     parser.add_argument("-n", "--fields", help="print only N fields", metavar="N", nargs=1, type=int)
-    parser.add_argument("-p", "--pattern", help="find fields using PATTERN", nargs=1)
+    parser.add_argument("-p", "--pattern", help="separate content using PATTERN", nargs=1)
     parser.add_argument("-s", "--separator", help="separate each field with 's'", metavar="'s'", nargs=1)
     quote_group.add_argument("-D", "--double-quote", action="store_true", help="print double quotes around fields")
     quote_group.add_argument("-S", "--single-quote", action="store_true", help="print single quotes around fields")

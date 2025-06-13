@@ -23,6 +23,7 @@ class Colors:
     """
     COLON: Final[str] = "\x1b[96m"  # Bright cyan
     COUNT: Final[str] = "\x1b[92m"  # Bright green
+    FIELD: Final[str] = "\x1b[100m"  # Bright black
     FILE_NAME: Final[str] = "\x1b[95m"  # Bright magenta
     RESET: Final[str] = "\x1b[0m"
     on: bool = False
@@ -133,7 +134,7 @@ def parse_arguments() -> None:
     quote_group.add_argument("-D", "--double-quote", action="store_true", help="print double quotes around fields")
     quote_group.add_argument("-S", "--single-quote", action="store_true", help="print single quotes around fields")
     parser.add_argument("--color", choices=("on", "off"), default="on",
-                        help="print the counts and file headers in color")
+                        help="print the counts, fields and file headers in color")
     parser.add_argument("--iso", action="store_true", help="use iso-8859-1 instead of utf-8 when reading files")
     parser.add_argument("--xargs", action="store_true", help="read FILES from standard input")
     parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {Program.VERSION}")
@@ -222,6 +223,9 @@ def separate_lines(lines: TextIO | list[str]) -> None:
 
         for index, field in enumerate(fields):
             print_end = FieldInfo.separator if index < len(fields) - 1 else ""
+
+            if Colors.on:
+                field = f"{Colors.FIELD}{field}{Colors.RESET}"
 
             print(f"{FieldInfo.quote}{field}{FieldInfo.quote}", end=print_end)
 

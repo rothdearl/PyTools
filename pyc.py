@@ -258,7 +258,11 @@ def print_stats_from_input() -> None:
         except EOFError:
             eof = True
 
-    print_stats(get_stats(lines), stat_origin="")
+    # Print stats.
+    stats = get_stats(lines)
+
+    add_stats_to_totals(stats)
+    print_stats(stats, stat_origin="")
 
 
 def set_count_info_values() -> None:

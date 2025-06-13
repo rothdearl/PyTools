@@ -4,7 +4,7 @@
 """
 Filename: pyniq.py
 Author: Roth Earl
-Version: 1.0.1
+Version: 1.0.2
 Description: A program to filter matching lines in files.
 License: GNU GPLv3
 """
@@ -54,7 +54,7 @@ class Program:
     Class for managing program constants.
     """
     NAME: Final[str] = "pyniq"
-    VERSION: Final[str] = "1.0.1"
+    VERSION: Final[str] = "1.0.2"
     args: argparse.Namespace = None
     has_errors: bool = False
 
@@ -287,7 +287,7 @@ def parse_arguments() -> None:
                         type=int)
     parser.add_argument("-H", "--no-file-header", action="store_true", help="suppress the file name header on output")
     parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore differences in case when comparing")
-    parser.add_argument("-m", "--max-chars", help="compare no more than N characters", metavar="N", nargs=1, type=int)
+    parser.add_argument("-m", "--max-chars", help="compare no more than N+ characters", metavar="N+", nargs=1, type=int)
     parser.add_argument("-s", "--skip-chars", help="avoid comparing the first N characters", metavar="N", nargs=1,
                         type=int)
     parser.add_argument("-w", "--skip-whitespace", action="store_true",

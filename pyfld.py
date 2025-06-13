@@ -23,6 +23,7 @@ class Colors:
     """
     COLON: Final[str] = "\x1b[96m"  # Bright cyan
     COUNT: Final[str] = "\x1b[92m"  # Bright green
+    COUNT_TOTAL: Final[str] = "\x1b[93m"  # Bright yellow
     FILE_NAME: Final[str] = "\x1b[95m"  # Bright magenta
     RESET: Final[str] = "\x1b[0m"
     on: bool = False
@@ -105,11 +106,12 @@ def parse_arguments() -> None:
     parser.add_argument("files", help="files to separate lines", metavar="FILES", nargs="*")
     parser.add_argument("-b", "--no-blank", action="store_true", help="suppress blank lines")
     parser.add_argument("-c", "--count", action="store_true", help="prefix output with field count")
-    parser.add_argument("-f", "--field-start", help="print at field N", metavar="N", nargs=1, type=int)
+    parser.add_argument("-f", "--field-start", help="print at field N+", metavar="N+", nargs=1, type=int)
     parser.add_argument("-H", "--no-file-header", action="store_true", help="suppress the file name header on output")
-    parser.add_argument("-n", "--fields", help="print only N fields", metavar="N", nargs=1, type=int)
+    parser.add_argument("-n", "--fields", help="print only N+ fields", metavar="N+", nargs=1, type=int)
     parser.add_argument("-p", "--pattern", help="find fields that match PATTERN", nargs=1)
     parser.add_argument("-s", "--separator", help="separate each field with α", metavar="α", nargs=1)
+    parser.add_argument("-t", "--total", action="store_true", help="print a line with total counts")
     quote_group.add_argument("-D", "--double-quote", action="store_true", help="print double quotes around fields")
     quote_group.add_argument("-S", "--single-quote", action="store_true", help="print single quotes around fields")
     parser.add_argument("--color", choices=("on", "off"), default="on",
@@ -183,6 +185,9 @@ def separate_lines(lines: TextIO | list[str]) -> None:
     :param lines: The lines.
     :return: None
     """
+    count_total = 0
+    count_width = 5
+
     for line in lines:
         fields = split_fields(line, FieldInfo.pattern)
 
@@ -191,13 +196,13 @@ def separate_lines(lines: TextIO | list[str]) -> None:
 
         if Program.args.count:  # --count
             count = len(fields)
-            width = 4
 
             if Colors.on:
-                count_str = f"{Colors.COUNT}{count:>{width}}{Colors.COLON}:{Colors.RESET}"
+                count_str = f"{Colors.COUNT}{count:>{count_width}}{Colors.COLON}:{Colors.RESET}"
             else:
-                count_str = f"{count:>{width}}:"
+                count_str = f"{count:>{count_width}}:"
 
+            count_total += count
             print(count_str, end="")
 
         for index, field in enumerate(fields):
@@ -206,6 +211,14 @@ def separate_lines(lines: TextIO | list[str]) -> None:
             print(f"{FieldInfo.quote}{field}{FieldInfo.quote}", end=print_end)
 
         print()
+
+    if Program.args.total:  # --total
+        if Colors.on:
+            count_str = f"{Colors.COUNT_TOTAL}{count_total:>{count_width}}{Colors.COLON}:{Colors.RESET}"
+        else:
+            count_str = f"{count_total:>{count_width}}:"
+
+        print(count_str)
 
 
 def separate_lines_from_files(files: TextIO | list[str]) -> None:

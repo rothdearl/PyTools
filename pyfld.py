@@ -186,7 +186,6 @@ def separate_lines(lines: TextIO | list[str]) -> None:
     :return: None
     """
     count_total = 0
-    count_width = 5
 
     for line in lines:
         fields = split_fields(line, FieldInfo.pattern)
@@ -194,15 +193,18 @@ def separate_lines(lines: TextIO | list[str]) -> None:
         if Program.args.no_blank and not fields:  # --no-blank
             continue
 
+        # Get the counts.
+        count = len(fields)
+        count_total += count
+
         if Program.args.count:  # --count
-            count = len(fields)
+            count_width = 5
 
             if Colors.on:
                 count_str = f"{Colors.COUNT}{count:>{count_width}}{Colors.COLON}:{Colors.RESET}"
             else:
                 count_str = f"{count:>{count_width}}:"
 
-            count_total += count
             print(count_str, end="")
 
         for index, field in enumerate(fields):
@@ -214,9 +216,9 @@ def separate_lines(lines: TextIO | list[str]) -> None:
 
     if Program.args.total:  # --total
         if Colors.on:
-            count_str = f"{Colors.COUNT_TOTAL}{count_total:>{count_width}}{Colors.COLON}:{Colors.RESET}"
+            count_str = f"{Colors.COUNT_TOTAL}total{Colors.COLON}:{Colors.COUNT_TOTAL}{count_total}{Colors.RESET}"
         else:
-            count_str = f"{count_total:>{count_width}}:"
+            count_str = f"total:{count_total}"
 
         print(count_str)
 

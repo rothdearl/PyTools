@@ -39,7 +39,6 @@ class CountInfo:
     OPTIONS: Final[list[bool]] = [False, False, False, False]
     TOTALS: Final[list[int]] = [0, 0, 0, 0]
     WORD_PATTERN: Final[str] = r"\b\w+\b"
-    files_counted: int = 0
     options_count: int = 0
     tab_width: int = 8
 
@@ -133,7 +132,6 @@ def main() -> None:
             if standard_input := sys.stdin.readlines():
                 stats = get_stats(standard_input)
 
-                CountInfo.files_counted += 1
                 add_stats_to_totals(stats)
                 print_stats(stats, stat_origin="(standard input)" if Program.args.files else "")
 
@@ -144,7 +142,7 @@ def main() -> None:
     else:
         print_stats_from_input()
 
-    if Program.args.total and CountInfo.files_counted > 1:  # --total
+    if Program.args.total:  # --total
         print_stats(CountInfo.TOTALS, stat_origin="total")
 
 
@@ -160,9 +158,9 @@ def parse_arguments() -> None:
     parser.add_argument("-c", "--chars", action="store_true", help="print the character counts")
     parser.add_argument("-l", "--lines", action="store_true", help="print the line counts")
     parser.add_argument("-L", "--max-line-length", action="store_true", help="print the maximum line length")
-    parser.add_argument("-t", "--tab-width", help="count tabs as N+ spaces instead of 8 for line length", metavar="N+",
+    parser.add_argument("-t", "--total", action="store_true", help="print a line with total counts")
+    parser.add_argument("-T", "--tab-width", help="count tabs as N+ spaces instead of 8 for line length", metavar="N+",
                         nargs=1, type=int)
-    parser.add_argument("-T", "--total", action="store_true", help="print a line with total counts")
     parser.add_argument("-w", "--words", action="store_true", help="print the word counts")
     parser.add_argument("--color", choices=("on", "off"), default="on", help="print the counts and file names in color")
     parser.add_argument("--iso", action="store_true", help="use iso-8859-1 instead of utf-8 when reading files")
@@ -234,7 +232,6 @@ def print_stats_from_files(files: TextIO | list[str]) -> None:
                 with open(file, "r", encoding=encoding) as text:
                     stats = get_stats(text)
 
-                    CountInfo.files_counted += 1
                     add_stats_to_totals(stats)
                     print_stats(stats, stat_origin=file)
         except FileNotFoundError:

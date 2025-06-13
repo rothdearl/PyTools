@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Filename: pyf.py
+Filename: pyfld.py
 Author: Roth Earl
 Version: 1.0.1
 Description: A program to separate lines into fields.
@@ -55,7 +55,7 @@ class Program:
     """
     Class for managing program constants.
     """
-    NAME: Final[str] = "pyf"
+    NAME: Final[str] = "pyfld"
     VERSION: Final[str] = "1.0.1"
     args: argparse.Namespace = None
     has_errors: bool = False

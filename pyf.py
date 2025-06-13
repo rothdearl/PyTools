@@ -4,7 +4,7 @@
 """
 Filename: pyf.py
 Author: Roth Earl
-Version: 1.0.0
+Version: 1.0.1
 Description: A program to separate lines into fields.
 License: GNU GPLv3
 """
@@ -56,7 +56,7 @@ class Program:
     Class for managing program constants.
     """
     NAME: Final[str] = "pyf"
-    VERSION: Final[str] = "1.0.0"
+    VERSION: Final[str] = "1.0.1"
     args: argparse.Namespace = None
     has_errors: bool = False
 

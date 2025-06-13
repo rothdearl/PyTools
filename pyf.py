@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Filename: pysep.py
+Filename: pyf.py
 Author: Roth Earl
 Version: 1.0.0
 Description: A program to separate lines into fields.
@@ -23,7 +23,6 @@ class Colors:
     """
     COLON: Final[str] = "\x1b[96m"  # Bright cyan
     COUNT: Final[str] = "\x1b[92m"  # Bright green
-    FIELD: Final[str] = "\x1b[100m"  # Bright black
     FILE_NAME: Final[str] = "\x1b[95m"  # Bright magenta
     RESET: Final[str] = "\x1b[0m"
     on: bool = False
@@ -56,30 +55,10 @@ class Program:
     """
     Class for managing program constants.
     """
-    NAME: Final[str] = "pysep"
+    NAME: Final[str] = "pyf"
     VERSION: Final[str] = "1.0.0"
     args: argparse.Namespace = None
     has_errors: bool = False
-
-
-def get_fields(line: str, field_pattern: str) -> list[str]:
-    """
-    Returns a list of fields from the line.
-    :param line: The line.
-    :param field_pattern: The pattern for getting fields.
-    :return: A list of fields from the line.
-    """
-    fields = []
-
-    # Strip leading and trailing whitespace.
-    line = line.strip()
-
-    # Split line into fields.
-    for field in re.split(field_pattern, line):
-        if field:
-            fields.append(field)
-
-    return fields[FieldInfo.field_index_start:FieldInfo.field_index_end]
 
 
 def main() -> None:
@@ -119,7 +98,7 @@ def parse_arguments() -> None:
     Parses the command line arguments to get the program options.
     :return: None
     """
-    parser = argparse.ArgumentParser(allow_abbrev=False, description="separate lines from FILES into fields",
+    parser = argparse.ArgumentParser(allow_abbrev=False, description="separate lines in FILES into fields",
                                      epilog="with no FILES, read standard input")
     quote_group = parser.add_mutually_exclusive_group()
 
@@ -129,12 +108,12 @@ def parse_arguments() -> None:
     parser.add_argument("-f", "--field-start", help="print at field N", metavar="N", nargs=1, type=int)
     parser.add_argument("-H", "--no-file-header", action="store_true", help="suppress the file name header on output")
     parser.add_argument("-n", "--fields", help="print only N fields", metavar="N", nargs=1, type=int)
-    parser.add_argument("-p", "--pattern", help="find fields using PATTERN", nargs=1)
+    parser.add_argument("-p", "--pattern", help="find fields that match PATTERN", nargs=1)
     parser.add_argument("-s", "--separator", help="separate each field with α", metavar="α", nargs=1)
     quote_group.add_argument("-D", "--double-quote", action="store_true", help="print double quotes around fields")
     quote_group.add_argument("-S", "--single-quote", action="store_true", help="print single quotes around fields")
     parser.add_argument("--color", choices=("on", "off"), default="on",
-                        help="print the counts, fields and file headers in color")
+                        help="print the counts and file headers in color")
     parser.add_argument("--iso", action="store_true", help="use iso-8859-1 instead of utf-8 when reading files")
     parser.add_argument("--xargs", action="store_true", help="read FILES from standard input")
     parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {Program.VERSION}")
@@ -205,7 +184,7 @@ def separate_lines(lines: TextIO | list[str]) -> None:
     :return: None
     """
     for line in lines:
-        fields = get_fields(line, FieldInfo.pattern)
+        fields = split_fields(line, FieldInfo.pattern)
 
         if Program.args.no_blank and not fields:  # --no-blank
             continue
@@ -223,9 +202,6 @@ def separate_lines(lines: TextIO | list[str]) -> None:
 
         for index, field in enumerate(fields):
             print_end = FieldInfo.separator if index < len(fields) - 1 else ""
-
-            if Colors.on:
-                field = f"{Colors.FIELD}{field}{Colors.RESET}"
 
             print(f"{FieldInfo.quote}{field}{FieldInfo.quote}", end=print_end)
 
@@ -275,6 +251,29 @@ def separate_lines_from_input() -> None:
             eof = True
 
     separate_lines(lines)
+
+
+def split_fields(line: str, field_pattern: str) -> list[str]:
+    """
+    Splits the line into a list of fields.
+    :param line: The line.
+    :param field_pattern: The pattern for splitting fields.
+    :return: A list of fields.
+    """
+    fields = []
+
+    # Strip leading and trailing whitespace.
+    line = line.strip()
+
+    # Split line into fields.
+    try:
+        for field in re.split(field_pattern, line):
+            if field:
+                fields.append(field)
+    except re.error:
+        print_error_message(f"invalid regex pattern: {field_pattern}", raise_system_exit=True)
+
+    return fields[FieldInfo.field_index_start:FieldInfo.field_index_end]
 
 
 if __name__ == "__main__":

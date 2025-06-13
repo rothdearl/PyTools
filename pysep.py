@@ -5,7 +5,7 @@
 Filename: pysep.py
 Author: Roth Earl
 Version: 1.0.0
-Description: A program to separate the contents of files into fields.
+Description: A program to separate lines into fields.
 License: GNU GPLv3
 """
 
@@ -83,7 +83,7 @@ def get_fields(line: str, field_pattern: str) -> list[str]:
 
 def main() -> None:
     """
-     A program to separate the contents of files into fields.
+    A program to separate lines into fields.
     :return: None
     """
     parse_arguments()
@@ -118,18 +118,18 @@ def parse_arguments() -> None:
     Parses the command line arguments to get the program options.
     :return: None
     """
-    parser = argparse.ArgumentParser(allow_abbrev=False, description="separate the contents of FILES into fields",
+    parser = argparse.ArgumentParser(allow_abbrev=False, description="separate lines from FILES into fields",
                                      epilog="with no FILES, read standard input")
     quote_group = parser.add_mutually_exclusive_group()
 
-    parser.add_argument("files", help="files to separate into fields", metavar="FILES", nargs="*")
+    parser.add_argument("files", help="files to separate lines", metavar="FILES", nargs="*")
     parser.add_argument("-b", "--no-blank", action="store_true", help="suppress blank lines")
-    parser.add_argument("-c", "--count", action="store_true", help="prefix fields with a count")
+    parser.add_argument("-c", "--count", action="store_true", help="prefix output with field count")
     parser.add_argument("-f", "--field-start", help="print at field N", metavar="N", nargs=1, type=int)
     parser.add_argument("-H", "--no-file-header", action="store_true", help="suppress the file name header on output")
     parser.add_argument("-n", "--fields", help="print only N fields", metavar="N", nargs=1, type=int)
-    parser.add_argument("-p", "--pattern", help="separate content using PATTERN", nargs=1)
-    parser.add_argument("-s", "--separator", help="separate each field with 's'", metavar="'s'", nargs=1)
+    parser.add_argument("-p", "--pattern", help="separate lines using PATTERN", nargs=1)
+    parser.add_argument("-s", "--separator", help="separate each field with S", metavar="S", nargs=1)
     quote_group.add_argument("-D", "--double-quote", action="store_true", help="print double quotes around fields")
     quote_group.add_argument("-S", "--single-quote", action="store_true", help="print single quotes around fields")
     parser.add_argument("--color", choices=("on", "off"), default="on",

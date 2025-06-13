@@ -142,7 +142,7 @@ def get_natural_sort_key(line: str) -> list[str]:
 
 def main() -> None:
     """
-     A program to sort and print files to standard output.
+    A program to sort and print files to standard output.
     :return: None
     """
     parse_arguments()

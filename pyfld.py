@@ -215,7 +215,7 @@ def separate_lines(lines: TextIO | list[str]) -> None:
         print()
 
     if Program.args.total == "on" or (Program.args.total == "auto" and Program.args.count):  # --total
-        count_width = 5 if Program.args.count else 0
+        count_width = 5 if Program.args.count else 0  # --count
 
         if Colors.on:
             count_str = f"{Colors.COUNT_TOTAL}{count_total:>{count_width}}{Colors.COLON}:{Colors.RESET}total"

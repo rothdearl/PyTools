@@ -4,7 +4,7 @@
 """
 Filename: pyfld.py
 Author: Roth Earl
-Version: 1.0.1
+Version: 1.0.2
 Description: A program to separate lines into fields.
 License: GNU GPLv3
 """
@@ -57,7 +57,7 @@ class Program:
     Class for managing program constants.
     """
     NAME: Final[str] = "pyfld"
-    VERSION: Final[str] = "1.0.1"
+    VERSION: Final[str] = "1.0.2"
     args: argparse.Namespace = None
     has_errors: bool = False
 
@@ -111,12 +111,13 @@ def parse_arguments() -> None:
     parser.add_argument("-n", "--fields", help="print only N+ fields", metavar="N+", nargs=1, type=int)
     parser.add_argument("-p", "--pattern", help="find fields that match PATTERN", nargs=1)
     parser.add_argument("-s", "--separator", help="separate each field with α", metavar="α", nargs=1)
-    parser.add_argument("-t", "--total", action="store_true", help="print a line with total counts")
     quote_group.add_argument("-D", "--double-quote", action="store_true", help="print double quotes around fields")
     quote_group.add_argument("-S", "--single-quote", action="store_true", help="print single quotes around fields")
     parser.add_argument("--color", choices=("on", "off"), default="on",
                         help="print the counts and file headers in color")
     parser.add_argument("--iso", action="store_true", help="use iso-8859-1 instead of utf-8 when reading files")
+    parser.add_argument("--total", choices=("always", "auto", "never"), default="auto",
+                        help="print a line with total count", metavar="WHEN")
     parser.add_argument("--xargs", action="store_true", help="read FILES from standard input")
     parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {Program.VERSION}")
 
@@ -214,11 +215,13 @@ def separate_lines(lines: TextIO | list[str]) -> None:
 
         print()
 
-    if Program.args.total:  # --total
+    if Program.args.total == "always" or (Program.args.total == "auto" and Program.args.count):  # --total
+        count_width = 5 if Program.args.count else 0
+
         if Colors.on:
-            count_str = f"{Colors.COUNT_TOTAL}total{Colors.COLON}:{Colors.COUNT_TOTAL}{count_total}{Colors.RESET}"
+            count_str = f"{Colors.COUNT_TOTAL}{count_total:>{count_width}}{Colors.COLON}:{Colors.RESET}total"
         else:
-            count_str = f"total:{count_total}"
+            count_str = f"{count_total:>{count_width}}:total"
 
         print(count_str)
 

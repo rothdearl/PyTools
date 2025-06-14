@@ -200,7 +200,7 @@ def print_stats(stats: Stats | list[int], *, stat_origin: str) -> None:
 
     for index, stat in enumerate(stats):
         if CountInfo.OPTIONS[index]:
-            width = 10 if CountInfo.options_count > 1 or stat_origin else 0
+            width = 12 if CountInfo.options_count > 1 or stat_origin else 0
 
             if Colors.on:
                 print(f"{stat_color}{stat:>{width},}{Colors.RESET}", end="")

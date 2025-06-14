@@ -144,7 +144,7 @@ def main() -> None:
     else:
         print_stats_from_input()
 
-    if Program.args.total == "always" or (Program.args.total == "auto" and CountInfo.files_counted > 1):  # --total
+    if Program.args.total == "on" or (Program.args.total == "auto" and CountInfo.files_counted > 1):  # --total
         print_stats(CountInfo.TOTALS, stat_origin="total")
 
 
@@ -165,8 +165,7 @@ def parse_arguments() -> None:
     parser.add_argument("-w", "--words", action="store_true", help="print the word counts")
     parser.add_argument("--color", choices=("on", "off"), default="on", help="print the counts and file names in color")
     parser.add_argument("--iso", action="store_true", help="use iso-8859-1 instead of utf-8 when reading files")
-    parser.add_argument("--total", choices=("always", "auto", "never"), default="auto",
-                        help="print a line with total counts", metavar="WHEN")
+    parser.add_argument("--total", choices=("auto", "on", "off"), default="auto", help="print a line with total counts")
     parser.add_argument("--xargs", action="store_true", help="read FILES from standard input")
     parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {Program.VERSION}")
 

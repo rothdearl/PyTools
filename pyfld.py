@@ -116,8 +116,7 @@ def parse_arguments() -> None:
     parser.add_argument("--color", choices=("on", "off"), default="on",
                         help="print the counts and file headers in color")
     parser.add_argument("--iso", action="store_true", help="use iso-8859-1 instead of utf-8 when reading files")
-    parser.add_argument("--total", choices=("always", "auto", "never"), default="auto",
-                        help="print a line with total count", metavar="WHEN")
+    parser.add_argument("--total", choices=("auto", "on", "off"), default="auto", help="print a line with total count")
     parser.add_argument("--xargs", action="store_true", help="read FILES from standard input")
     parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {Program.VERSION}")
 
@@ -215,7 +214,7 @@ def separate_lines(lines: TextIO | list[str]) -> None:
 
         print()
 
-    if Program.args.total == "always" or (Program.args.total == "auto" and Program.args.count):  # --total
+    if Program.args.total == "on" or (Program.args.total == "auto" and Program.args.count):  # --total
         count_width = 5 if Program.args.count else 0
 
         if Colors.on:

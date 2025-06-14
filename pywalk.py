@@ -4,7 +4,7 @@
 """
 Filename: pywalk.py
 Author: Roth Earl
-Version: 1.0.1
+Version: 1.0.2
 Description: A program to find files in a directory hierarchy.
 License: GNU GPLv3
 """
@@ -52,7 +52,7 @@ class Program:
     Class for managing program constants.
     """
     NAME: Final[str] = "pywalk"
-    VERSION: Final[str] = "1.0.1"
+    VERSION: Final[str] = "1.0.2"
     args: argparse.Namespace = None
     has_errors: bool = False
 
@@ -131,10 +131,11 @@ def highlight_patterns(patterns: list[str], file_name: str) -> str:
     flags = re.IGNORECASE if Program.args.ignore_case else 0
 
     for pattern in patterns:
-        for split_pattern in split_pattern_on_pipe(pattern):
-            if match := re.search(split_pattern, file_name, flags=flags):
-                replace = file_name[match.start():match.end()]
-                file_name = re.sub(split_pattern, f"{Colors.MATCH}{replace}{Colors.RESET}", file_name)
+        for sub_pattern in split_pattern_on_pipe(pattern):
+            if match := re.search(sub_pattern, file_name, flags=flags):
+                replace = f"{Colors.MATCH}{file_name[match.start():match.end()]}{Colors.RESET}"
+
+                file_name = re.sub(sub_pattern, repl=replace, string=file_name, flags=flags)
 
     return file_name
 

@@ -4,7 +4,7 @@
 """
 Filename: pyline.py
 Author: Roth Earl
-Version: 1.0.2
+Version: 1.0.3
 Description: A program to find lines that match patterns.
 License: GNU GPLv3
 """
@@ -53,7 +53,7 @@ class Program:
     Class for managing program constants.
     """
     NAME: Final[str] = "pyline"
-    VERSION: Final[str] = "1.0.2"
+    VERSION: Final[str] = "1.0.3"
     args: argparse.Namespace = None
     has_errors: bool = False
 
@@ -68,10 +68,11 @@ def highlight_patterns(patterns: list[str], line: str) -> str:
     flags = re.IGNORECASE if Program.args.ignore_case else 0
 
     for pattern in patterns:
-        for split_pattern in split_pattern_on_pipe(pattern):
-            if match := re.search(split_pattern, line, flags=flags):
-                replace = line[match.start():match.end()]
-                line = re.sub(split_pattern, f"{Colors.MATCH}{replace}{Colors.RESET}", line)
+        for sub_pattern in split_pattern_on_pipe(pattern):
+            if match := re.search(sub_pattern, line, flags=flags):
+                replace = f"{Colors.MATCH}{line[match.start():match.end()]}{Colors.RESET}"
+
+                line = re.sub(sub_pattern, repl=replace, string=line, flags=flags)
 
     return line
 

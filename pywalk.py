@@ -176,20 +176,20 @@ def parse_arguments() -> None:
 
     parser.add_argument("dirs", help="the directory starting-points", metavar="DIRECTORIES", nargs="*")
     parser.add_argument("-e", "--escape-spaces", action="store_true", help="print paths with spaces escaped")
-    parser.add_argument("-f", "--find", action="extend", help="find files that match PATTERN", metavar="PATTERN",
+    parser.add_argument("-f", "--find", action="extend", help="print files that match PATTERN", metavar="PATTERN",
                         nargs=1)
     parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case in patterns and input data")
-    parser.add_argument("-I", "--invert-find", action="store_true", help="find non-matching files")
+    parser.add_argument("-I", "--invert-find", action="store_true", help="print non-matching files")
     parser.add_argument("-q", "--quiet", "--silent", action="store_true", help="suppress all normal output")
     parser.add_argument("--abs", action="store_true", help="print absolute file paths")
     parser.add_argument("--color", choices=("on", "off"), default="on", help="print the matched strings in color")
-    parser.add_argument("--empty", choices=("y", "n"), help="find files that are empty")
-    parser.add_argument("--type", choices=("d", "f"), help="find files by type")
-    modified_group.add_argument("--m-days", help="find files modified < than or > than n days", metavar="±n", nargs=1,
+    parser.add_argument("--empty", choices=("y", "n"), help="print files that are empty")
+    parser.add_argument("--type", choices=("d", "f"), help="print files by type")
+    modified_group.add_argument("--m-days", help="print files modified < than or > than n days", metavar="±n", nargs=1,
                                 type=int)
-    modified_group.add_argument("--m-hours", help="find files modified < than or > than n hours", metavar="±n", nargs=1,
+    modified_group.add_argument("--m-hours", help="print files modified < than or > than n hours", metavar="±n", nargs=1,
                                 type=int)
-    modified_group.add_argument("--m-mins", help="find files modified < than or > than n minutes", metavar="±n",
+    modified_group.add_argument("--m-mins", help="print files modified < than or > than n minutes", metavar="±n",
                                 nargs=1, type=int)
     parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {Program.VERSION}")
 

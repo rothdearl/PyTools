@@ -131,17 +131,18 @@ def parse_arguments() -> None:
     """
     parser = argparse.ArgumentParser(allow_abbrev=False, description="print lines that match patterns in FILES",
                                      epilog="with no FILES, read standard input")
+    print_group = parser.add_mutually_exclusive_group()
 
     parser.add_argument("files", help="files to print lines", metavar="FILES", nargs="*")
-    parser.add_argument("-c", "--count", action="store_true",
-                        help="print only a count of matching lines per input file")
     parser.add_argument("-f", "--find", action="extend", help="print lines that match PATTERN", metavar="PATTERN",
                         nargs=1)
     parser.add_argument("-H", "--no-file-header", action="store_true", help="suppress the file name header on output")
     parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case in patterns and input data")
     parser.add_argument("-I", "--invert-find", action="store_true", help="print non-matching lines")
-    parser.add_argument("-n", "--line-number", action="store_true", help="print line number with output lines")
     parser.add_argument("-q", "--quiet", "--silent", action="store_true", help="suppress all normal output")
+    print_group.add_argument("-c", "--count", action="store_true",
+                             help="print only a count of matching lines per input file")
+    print_group.add_argument("-n", "--line-number", action="store_true", help="print line number with output lines")
     parser.add_argument("--color", choices=("on", "off"), default="on",
                         help="print the matched strings, file names and line numbers in color")
     parser.add_argument("--iso", action="store_true", help="use iso-8859-1 instead of utf-8 when reading files")

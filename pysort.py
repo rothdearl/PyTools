@@ -4,7 +4,7 @@
 """
 Filename: pysort.py
 Author: Roth Earl
-Version: 0.1.4
+Version: 0.1.5
 Description: A program to sort and print files to standard output.
 License: GNU GPLv3
 """
@@ -45,8 +45,9 @@ class FieldInfo:
     Class for managing field constants.
     """
     DATE_PATTERN: Final[str] = r"[\f\r\n\t\v]"  # All whitespace except spaces.
-    DEFAULT_PATTERN: Final[str] = r"[ ]"  # All spaces.
+    DEFAULT_PATTERN: Final[str] = r"\s+"  # All whitespace.
     WORD_PATTERN: Final[str] = r"\s+|\W+"  # All whitespace and non-words.
+    pattern: str = None
     skip_fields: int = 0
 
 
@@ -56,7 +57,7 @@ class Program:
     Class for managing program constants.
     """
     NAME: Final[str] = "pysort"
-    VERSION: Final[str] = "0.1.4"
+    VERSION: Final[str] = "0.1.5"
     args: argparse.Namespace = None
     has_errors: bool = False
 
@@ -67,7 +68,7 @@ def get_date_sort_key(line: str) -> str:
     :param line: The line.
     :return: The date sort key.
     """
-    fields = get_fields(line, FieldInfo.DATE_PATTERN)
+    fields = split_line(line, FieldInfo.DATE_PATTERN if FieldInfo.pattern is None else FieldInfo.pattern)
 
     try:
         if fields:
@@ -86,7 +87,7 @@ def get_default_sort_key(line: str) -> list[str]:
     :param line: The line.
     :return: The default sort key.
     """
-    return get_fields(line, FieldInfo.DEFAULT_PATTERN)
+    return split_line(line, FieldInfo.DEFAULT_PATTERN if FieldInfo.pattern is None else FieldInfo.pattern)
 
 
 def get_dictionary_sort_key(line: str) -> list[str]:
@@ -95,31 +96,7 @@ def get_dictionary_sort_key(line: str) -> list[str]:
     :param line: The line.
     :return: The dictionary sort key.
     """
-    return get_fields(line, FieldInfo.WORD_PATTERN)
-
-
-def get_fields(line: str, field_pattern: str, *, strip_number_separators: bool = False) -> list[str]:
-    """
-    Returns a list of fields from the line.
-    :param line: The line.
-    :param field_pattern: The pattern for getting fields.
-    :param strip_number_separators: Whether to strip number separators (commas and decimals).
-    :return: A list of fields from the line.
-    """
-    fields = []
-
-    # Strip leading and trailing whitespace.
-    line = line.strip()
-
-    # Strip commas and decimals.
-    if strip_number_separators:
-        line = line.replace(",", "").replace(".", "")
-
-    for index, field in enumerate(re.split(field_pattern, line)):
-        if field and index >= FieldInfo.skip_fields:
-            fields.append(field.casefold() if Program.args.ignore_case else field)  # --ignore-case
-
-    return fields
+    return split_line(line, FieldInfo.WORD_PATTERN if FieldInfo.pattern is None else FieldInfo.pattern)
 
 
 def get_natural_sort_key(line: str) -> list[str]:
@@ -128,16 +105,17 @@ def get_natural_sort_key(line: str) -> list[str]:
     :param line: The line.
     :return: The natural sort key.
     """
-    numbers_and_words = []
+    digits = []
+    pattern = FieldInfo.DEFAULT_PATTERN if FieldInfo.pattern is None else FieldInfo.pattern
 
-    for field in get_fields(line, FieldInfo.WORD_PATTERN, strip_number_separators=True):
+    for field in split_line(line, pattern, strip_number_separators=True):
         # Zero-pad integers so they sort numerically.
         if field.isdigit():
             field = f"{field:0>20}"
 
-        numbers_and_words.append(field)
+        digits.append(field)
 
-    return numbers_and_words
+    return digits
 
 
 def main() -> None:
@@ -191,6 +169,7 @@ def parse_arguments() -> None:
                         type=int)
     parser.add_argument("-H", "--no-file-header", action="store_true", help="suppress the file name header on output")
     parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore differences in case when comparing")
+    parser.add_argument("-p", "--pattern", help="split lines into fields using PATTERN", nargs=1)
     parser.add_argument("-r", "--reverse", action="store_true", help="reverse the result of comparisons")
     sort_group.add_argument("-d", "--dictionary-sort", action="store_true", help="compare lines lexicographically")
     sort_group.add_argument("-D", "--date-sort", action="store_true", help="compare dates from newest to oldest")
@@ -243,6 +222,7 @@ def set_field_info_values() -> None:
     Sets the values to use for sorting lines.
     :return: None
     """
+    FieldInfo.pattern = None if not Program.args.pattern else Program.args.pattern[0]  # --pattern
     FieldInfo.skip_fields = 0 if not Program.args.skip_fields else Program.args.skip_fields[0]  # --skip-fields
 
     # Validate the field values.
@@ -273,10 +253,10 @@ def sort_lines(lines: list[str], *, has_newlines: bool) -> None:
 
     # Print lines.
     for line in lines:
-        can_print = False if Program.args.no_blank and not line.rstrip() else True  # --no-blank
+        if Program.args.no_blank and not line.rstrip():  # --no-blank
+            continue
 
-        if can_print:
-            print(line, end=print_end)
+        print(line, end=print_end)
 
 
 def sort_lines_from_files(files: TextIO | list[str]) -> None:
@@ -322,6 +302,33 @@ def sort_lines_from_input() -> None:
             eof = True
 
     sort_lines(lines, has_newlines=False)
+
+
+def split_line(line: str, field_pattern: str, *, strip_number_separators: bool = False) -> list[str]:
+    """
+    Splits the line into a list of fields.
+    :param line: The line.
+    :param field_pattern: The pattern for getting fields.
+    :param strip_number_separators: Whether to strip number separators (commas and decimals) before splitting.
+    :return: A list of fields.
+    """
+    fields = []
+
+    # Strip leading and trailing whitespace.
+    line = line.strip()
+
+    # Strip commas and decimals.
+    if strip_number_separators:
+        line = line.replace(",", "").replace(".", "")
+
+    try:
+        for index, field in enumerate(re.split(field_pattern, line)):
+            if field and index >= FieldInfo.skip_fields:
+                fields.append(field.casefold() if Program.args.ignore_case else field)  # --ignore-case
+    except re.error:
+        print_error_message(f"invalid regex pattern: {field_pattern}", raise_system_exit=True)
+
+    return fields
 
 
 if __name__ == "__main__":

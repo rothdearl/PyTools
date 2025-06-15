@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 
 """
-Filename: pyfld.py
+Filename: pysp.py
 Author: Roth Earl
-Version: 1.0.2
-Description: A program to separate lines into fields.
+Version: 1.0.3
+Description: A program to split lines into fields.
 License: GNU GPLv3
 """
 
@@ -56,15 +56,15 @@ class Program:
     """
     Class for managing program constants.
     """
-    NAME: Final[str] = "pyfld"
-    VERSION: Final[str] = "1.0.2"
+    NAME: Final[str] = "pysp"
+    VERSION: Final[str] = "1.0.3"
     args: argparse.Namespace = None
     has_errors: bool = False
 
 
 def main() -> None:
     """
-    A program to separate lines into fields.
+    A program to split lines into fields.
     :return: None
     """
     parse_arguments()
@@ -80,18 +80,18 @@ def main() -> None:
     # Check if the input is being redirected.
     if not sys.stdin.isatty():
         if Program.args.xargs:  # --xargs
-            separate_lines_from_files(sys.stdin)
+            split_lines_from_files(sys.stdin)
         else:
             if standard_input := sys.stdin.readlines():
                 print_file_header(file="")
-                separate_lines(standard_input)
+                split_lines(standard_input)
 
         if Program.args.files:  # Process any additional files.
-            separate_lines_from_files(Program.args.files)
+            split_lines_from_files(Program.args.files)
     elif Program.args.files:
-        separate_lines_from_files(Program.args.files)
+        split_lines_from_files(Program.args.files)
     else:
-        separate_lines_from_input()
+        split_lines_from_input()
 
 
 def parse_arguments() -> None:
@@ -99,11 +99,11 @@ def parse_arguments() -> None:
     Parses the command line arguments to get the program options.
     :return: None
     """
-    parser = argparse.ArgumentParser(allow_abbrev=False, description="separate lines in FILES into fields",
+    parser = argparse.ArgumentParser(allow_abbrev=False, description="split lines in FILES into fields",
                                      epilog="with no FILES, read standard input")
     quote_group = parser.add_mutually_exclusive_group()
 
-    parser.add_argument("files", help="files to separate lines", metavar="FILES", nargs="*")
+    parser.add_argument("files", help="files to split lines", metavar="FILES", nargs="*")
     parser.add_argument("-b", "--no-blank", action="store_true", help="suppress blank lines")
     parser.add_argument("-c", "--count", action="store_true", help="prefix output with field count")
     parser.add_argument("-f", "--field-start", help="print at field N+", metavar="N+", nargs=1, type=int)
@@ -179,16 +179,39 @@ def set_field_info_values() -> None:
     FieldInfo.separator = "\t" if not Program.args.separator else Program.args.separator[0]  # --separator
 
 
-def separate_lines(lines: TextIO | list[str]) -> None:
+def split_line(line: str, field_pattern: str) -> list[str]:
     """
-    Separates the lines into fields.
+    Splits the line into a list of fields.
+    :param line: The line.
+    :param field_pattern: The pattern for splitting fields.
+    :return: A list of fields.
+    """
+    fields = []
+
+    # Strip leading and trailing whitespace.
+    line = line.strip()
+
+    # Split line into fields.
+    try:
+        for field in re.split(field_pattern, line):
+            if field:
+                fields.append(field)
+    except re.error:
+        print_error_message(f"invalid regex pattern: {field_pattern}", raise_system_exit=True)
+
+    return fields[FieldInfo.field_index_start:FieldInfo.field_index_end]
+
+
+def split_lines(lines: TextIO | list[str]) -> None:
+    """
+    Splits the lines into fields.
     :param lines: The lines.
     :return: None
     """
     count_total = 0
 
     for line in lines:
-        fields = split_fields(line, FieldInfo.pattern)
+        fields = split_line(line, FieldInfo.pattern)
 
         if Program.args.no_blank and not fields:  # --no-blank
             continue
@@ -225,9 +248,9 @@ def separate_lines(lines: TextIO | list[str]) -> None:
         print(count_str)
 
 
-def separate_lines_from_files(files: TextIO | list[str]) -> None:
+def split_lines_from_files(files: TextIO | list[str]) -> None:
     """
-    Separates lines into fields from files.
+    Splits lines into fields from files.
     :param files: The files.
     :return: None
     """
@@ -242,7 +265,7 @@ def separate_lines_from_files(files: TextIO | list[str]) -> None:
             else:
                 with open(file, "r", encoding=encoding) as text:
                     print_file_header(file)
-                    separate_lines(text)
+                    split_lines(text)
         except FileNotFoundError:
             print_error_message(f"{file if file else "\"\""}: no such file or directory")
         except PermissionError:
@@ -253,9 +276,9 @@ def separate_lines_from_files(files: TextIO | list[str]) -> None:
             print_error_message(f"{file}: unable to decode file")
 
 
-def separate_lines_from_input() -> None:
+def split_lines_from_input() -> None:
     """
-    Separates lines into fields from standard input until EOF is entered.
+    Splits lines into fields from standard input until EOF is entered.
     :return: None
     """
     eof = False
@@ -267,30 +290,7 @@ def separate_lines_from_input() -> None:
         except EOFError:
             eof = True
 
-    separate_lines(lines)
-
-
-def split_fields(line: str, field_pattern: str) -> list[str]:
-    """
-    Splits the line into a list of fields.
-    :param line: The line.
-    :param field_pattern: The pattern for splitting fields.
-    :return: A list of fields.
-    """
-    fields = []
-
-    # Strip leading and trailing whitespace.
-    line = line.strip()
-
-    # Split line into fields.
-    try:
-        for field in re.split(field_pattern, line):
-            if field:
-                fields.append(field)
-    except re.error:
-        print_error_message(f"invalid regex pattern: {field_pattern}", raise_system_exit=True)
-
-    return fields[FieldInfo.field_index_start:FieldInfo.field_index_end]
+    split_lines(lines)
 
 
 if __name__ == "__main__":

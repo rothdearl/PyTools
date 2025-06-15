@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Filename: pysp.py
+Filename: pyspl.py
 Author: Roth Earl
 Version: 1.0.3
 Description: A program to split lines into fields.
@@ -56,7 +56,7 @@ class Program:
     """
     Class for managing program constants.
     """
-    NAME: Final[str] = "pysp"
+    NAME: Final[str] = "pyspl"
     VERSION: Final[str] = "1.0.3"
     args: argparse.Namespace = None
     has_errors: bool = False

@@ -103,7 +103,7 @@ def parse_arguments() -> None:
                                      epilog="with no FILES, read standard input")
     quote_group = parser.add_mutually_exclusive_group()
 
-    parser.add_argument("files", help="files to split lines", metavar="FILES", nargs="*")
+    parser.add_argument("files", help="files to split", metavar="FILES", nargs="*")
     parser.add_argument("-b", "--no-blank", action="store_true", help="suppress blank lines")
     parser.add_argument("-c", "--count", action="store_true", help="prefix output with field count")
     parser.add_argument("-f", "--field-start", help="print at field N+", metavar="N+", nargs=1, type=int)

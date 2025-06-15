@@ -133,7 +133,7 @@ def parse_arguments() -> None:
                                      epilog="with no FILES, read standard input")
     print_group = parser.add_mutually_exclusive_group()
 
-    parser.add_argument("files", help="files to print lines", metavar="FILES", nargs="*")
+    parser.add_argument("files", help="files to print", metavar="FILES", nargs="*")
     parser.add_argument("-f", "--find", action="extend", help="print lines that match PATTERN", metavar="PATTERN",
                         nargs=1)
     parser.add_argument("-H", "--no-file-header", action="store_true", help="suppress the file name header on output")

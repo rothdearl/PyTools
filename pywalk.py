@@ -5,7 +5,7 @@
 Filename: pywalk.py
 Author: Roth Earl
 Version: 1.0.3
-Description: A program to find files in a directory hierarchy.
+Description: A program to print files in a directory hierarchy.
 License: GNU GPLv3
 """
 
@@ -142,7 +142,7 @@ def highlight_patterns(patterns: list[str], file_name: str) -> str:
 
 def main() -> None:
     """
-    A program to find files in a directory hierarchy.
+    A program to print files in a directory hierarchy.
     :return: None
     """
     parse_arguments()
@@ -170,7 +170,7 @@ def parse_arguments() -> None:
     Parses the command line arguments to get the program options.
     :return: None
     """
-    parser = argparse.ArgumentParser(allow_abbrev=False, description="find files in a directory hierarchy",
+    parser = argparse.ArgumentParser(allow_abbrev=False, description="print files in a directory hierarchy",
                                      epilog="default directory is the current directory")
     modified_group = parser.add_mutually_exclusive_group()
 

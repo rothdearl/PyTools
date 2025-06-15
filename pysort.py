@@ -159,11 +159,11 @@ def parse_arguments() -> None:
     Parses the command line arguments to get the program options.
     :return: None
     """
-    parser = argparse.ArgumentParser(allow_abbrev=False, description="sort and print FILES to standard output",
+    parser = argparse.ArgumentParser(allow_abbrev=False, description="sort FILES to standard output",
                                      epilog="with no FILES, read standard input")
     sort_group = parser.add_mutually_exclusive_group()
 
-    parser.add_argument("files", help="files to sort and print", metavar="FILES", nargs="*")
+    parser.add_argument("files", help="files to sort", metavar="FILES", nargs="*")
     parser.add_argument("-b", "--no-blank", action="store_true", help="suppress blank lines")
     parser.add_argument("-f", "--skip-fields", help="avoid comparing the first N fields", metavar="N", nargs=1,
                         type=int)

@@ -4,7 +4,7 @@
 """
 Filename: pysort.py
 Author: Roth Earl
-Version: 0.1.5
+Version: 1.0.0
 Description: A program to sort and print files to standard output.
 License: GNU GPLv3
 """
@@ -57,7 +57,7 @@ class Program:
     Class for managing program constants.
     """
     NAME: Final[str] = "pysort"
-    VERSION: Final[str] = "0.1.5"
+    VERSION: Final[str] = "1.0.0"
     args: argparse.Namespace = None
     has_errors: bool = False
 

@@ -4,8 +4,8 @@
 """
 Filename: pyline.py
 Author: Roth Earl
-Version: 1.0.3
-Description: A program to find lines that match patterns.
+Version: 1.0.4
+Description: A program to print lines that match patterns.
 License: GNU GPLv3
 """
 
@@ -53,7 +53,7 @@ class Program:
     Class for managing program constants.
     """
     NAME: Final[str] = "pyline"
-    VERSION: Final[str] = "1.0.3"
+    VERSION: Final[str] = "1.0.4"
     args: argparse.Namespace = None
     has_errors: bool = False
 
@@ -96,7 +96,7 @@ def line_matches_patterns(line: str) -> bool:
 
 def main() -> None:
     """
-    A program to find lines that match patterns.
+    A program to print lines that match patterns.
     :return: None
     """
     parse_arguments()
@@ -129,17 +129,17 @@ def parse_arguments() -> None:
     Parses the command line arguments to get the program options.
     :return: None
     """
-    parser = argparse.ArgumentParser(allow_abbrev=False, description="find lines that match patterns in FILES",
+    parser = argparse.ArgumentParser(allow_abbrev=False, description="print lines that match patterns in FILES",
                                      epilog="with no FILES, read standard input")
 
-    parser.add_argument("files", help="files to find lines in", metavar="FILES", nargs="*")
+    parser.add_argument("files", help="files to print lines", metavar="FILES", nargs="*")
     parser.add_argument("-c", "--count", action="store_true",
                         help="print only a count of matching lines per input file")
-    parser.add_argument("-f", "--find", action="extend", help="find lines that match PATTERN", metavar="PATTERN",
+    parser.add_argument("-f", "--find", action="extend", help="print lines that match PATTERN", metavar="PATTERN",
                         nargs=1)
     parser.add_argument("-H", "--no-file-header", action="store_true", help="suppress the file name header on output")
     parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case in patterns and input data")
-    parser.add_argument("-I", "--invert-find", action="store_true", help="find non-matching lines")
+    parser.add_argument("-I", "--invert-find", action="store_true", help="print non-matching lines")
     parser.add_argument("-n", "--line-number", action="store_true", help="print line number with output lines")
     parser.add_argument("-q", "--quiet", "--silent", action="store_true", help="suppress all normal output")
     parser.add_argument("--color", choices=("on", "off"), default="on",

@@ -4,8 +4,8 @@
 """
 Filename: pytype.py
 Author: Roth Earl
-Version: 1.0.3
-Description: A program to print the contents of files to standard output.
+Version: 1.0.4
+Description: A program to print the lines of files.
 License: GNU GPLv3
 """
 
@@ -51,14 +51,14 @@ class Program:
     Class for managing program constants.
     """
     NAME: Final[str] = "pytype"
-    VERSION: Final[str] = "1.0.3"
+    VERSION: Final[str] = "1.0.4"
     args: argparse.Namespace = None
     has_errors: bool = False
 
 
 def main() -> None:
     """
-    A program to print the contents of files to standard output.
+    A program to print the lines of files.
     :return: None
     """
     parse_arguments()
@@ -93,7 +93,7 @@ def parse_arguments() -> None:
     Parses the command line arguments to get the program options.
     :return: None
     """
-    parser = argparse.ArgumentParser(allow_abbrev=False, description="print the contents of FILES to standard output",
+    parser = argparse.ArgumentParser(allow_abbrev=False, description="print the lines of FILES",
                                      epilog="with no FILES, read standard input")
 
     parser.add_argument("files", help="files to print", metavar="FILES", nargs="*")

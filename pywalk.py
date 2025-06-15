@@ -4,7 +4,7 @@
 """
 Filename: pywalk.py
 Author: Roth Earl
-Version: 1.0.2
+Version: 1.0.3
 Description: A program to find files in a directory hierarchy.
 License: GNU GPLv3
 """
@@ -52,7 +52,7 @@ class Program:
     Class for managing program constants.
     """
     NAME: Final[str] = "pywalk"
-    VERSION: Final[str] = "1.0.2"
+    VERSION: Final[str] = "1.0.3"
     args: argparse.Namespace = None
     has_errors: bool = False
 
@@ -175,6 +175,7 @@ def parse_arguments() -> None:
     modified_group = parser.add_mutually_exclusive_group()
 
     parser.add_argument("dirs", help="the directory starting-points", metavar="DIRECTORIES", nargs="*")
+    parser.add_argument("-e", "--escape-spaces", action="store_true", help="print paths with spaces escaped")
     parser.add_argument("-f", "--find", action="extend", help="find files that match PATTERN", metavar="PATTERN",
                         nargs=1)
     parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case in patterns and input data")
@@ -183,8 +184,6 @@ def parse_arguments() -> None:
     parser.add_argument("--abs", action="store_true", help="print absolute file paths")
     parser.add_argument("--color", choices=("on", "off"), default="on", help="print the matched strings in color")
     parser.add_argument("--empty", choices=("y", "n"), help="find files that are empty")
-    parser.add_argument("--escape-spaces", action="store_true", help="print paths with spaces escaped")
-    parser.add_argument("--quote", action="store_true", help="print paths inside quotes")
     parser.add_argument("--type", choices=("d", "f"), help="find files by type")
     modified_group.add_argument("--m-days", help="find files modified < than or > than n days", metavar="±n", nargs=1,
                                 type=int)
@@ -234,9 +233,6 @@ def print_file(file: pathlib.Path) -> None:
 
                 if Program.args.escape_spaces:  # --escape-spaces
                     path = path.replace(" ", "\\ ")
-
-                if Program.args.quote:  # --quote
-                    path = f"\"{path}\""
 
                 if Colors.on:  # --color
                     if Program.args.find and not Program.args.invert_find:  # --find and not --invert-find

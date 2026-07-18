@@ -9,6 +9,9 @@ versioned section when a release is cut.
 
 - `project`: Bumped version to 1.4.13.
 - `project`: Corrected GitHub repository URLs — changed `Pyr-CLI` to `pyr-cli` to match the actual repository name casing.
+- `config`: Added `.github/copilot-instructions.md` and a `.github/prompts/` prompt set mirroring the existing Claude skills so GitHub Copilot can be used alongside Claude Code.
+- `docs`: Added an "AI Assistant Configuration" section to `README.md` documenting the dual Claude/Copilot setup and where each tool's project guidance is stored.
+- `config`: Updated `.gitignore` to allow `.github/**` so Copilot configuration files are tracked in git.
 
 ---
 

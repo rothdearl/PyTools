@@ -256,6 +256,27 @@ Contributions should preserve the single-responsibility design and the pipeline-
 
 ---
 
+## AI Assistant Configuration
+
+This repository supports both Claude Code and GitHub Copilot.
+
+- Claude Code project context and skills remain in `CLAUDE.md` and `.claude/skills/`.
+- GitHub Copilot project instructions are in `.github/copilot-instructions.md`.
+- Reusable Copilot prompt files are in `.github/prompts/`.
+
+Prompt files mirror the existing Claude skill set:
+
+- `audit-docs`
+- `changelog`
+- `docstring`
+- `evaluate`
+- `help-text`
+- `performance`
+- `release-docs`
+- `typing`
+
+---
+
 ## License
 
 This project is licensed under the GNU General Public License v3.0 (GPL-3.0).

@@ -5,6 +5,10 @@
 !.claude
 !.claude/**
 
+# Allow GitHub Copilot project instructions and prompts to be checked-in.
+!.github
+!.github/**
+
 # Build and test output directories.
 build/
 pyr_cli.egg-info/

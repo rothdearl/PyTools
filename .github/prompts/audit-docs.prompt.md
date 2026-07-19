@@ -19,6 +19,13 @@ Review:
 4. Verify command names map to modules under `pyrcli/commands/`.
 5. Verify key symbols named in `CLAUDE.md` still exist.
 6. Verify rubric cross-references are accurate and non-contradictory.
+7. Verify AI assistant mapping consistency in `README.md`:
+   - Each documented workflow appears as both `.claude/skills/<workflow>/SKILL.md` and
+     `.github/prompts/<workflow>.prompt.md`.
+   - Every workflow in `.claude/skills/` has a matching prompt in `.github/prompts/`, and vice versa.
+   - Claude/Copilot command names in mapping and catalog tables match workflow names and corresponding files.
+   - Referenced configuration sources are accurate (`CLAUDE.md`, `.claude/skills/*/SKILL.md`,
+     `.github/copilot-instructions.md`, `.github/prompts/*.prompt.md`).
 
 ## Output
 

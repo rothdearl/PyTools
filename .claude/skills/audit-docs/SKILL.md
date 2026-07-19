@@ -106,13 +106,31 @@ length. Check that:
 - `CLAUDE.md` references `docs/help_text_rubric.md` as the authoritative help text rubric.
 - Neither README.md nor CLAUDE.md contains extended style or philosophy content that contradicts the rubrics.
 
+### 8. Verify AI assistant mapping consistency
+
+If `README.md` includes an **AI Assistant Configuration** section, verify the Claude Code and GitHub Copilot mapping is
+still correct.
+
+Check all of the following:
+
+- Every workflow listed in the mapping has both:
+    - `.claude/skills/<workflow>/SKILL.md`
+    - `.github/prompts/<workflow>.prompt.md`
+- Every `SKILL.md` under `.claude/skills/` has a matching Copilot prompt file under `.github/prompts/` (by workflow
+  name), and vice versa.
+- Command names shown in mapping/catalog tables (for example, `/audit-docs`) match the workflow names and corresponding
+  skill/prompt files.
+- Referenced configuration sources are accurate:
+    - Claude: `CLAUDE.md` and `.claude/skills/*/SKILL.md`
+    - Copilot: `.github/copilot-instructions.md` and `.github/prompts/*.prompt.md`
+
 ---
 
 ## Output Format
 
 ### Per-category results
 
-For each of the seven categories above, report:
+For each of the eight categories above, report:
 
 - **Pass** — if everything checks out (one line is sufficient).
 - **Findings** — a list of specific discrepancies if any are found.

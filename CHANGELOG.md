@@ -12,6 +12,9 @@ versioned section when a release is cut.
 - `config`: Added `.github/copilot-instructions.md` and a `.github/prompts/` prompt set mirroring the existing Claude skills so GitHub Copilot can be used alongside Claude Code.
 - `docs`: Added an "AI Assistant Configuration" section to `README.md` documenting the dual Claude/Copilot setup and where each tool's project guidance is stored.
 - `config`: Updated `.gitignore` to allow `.github/**` so Copilot configuration files are tracked in git.
+- `docs`: Expanded the README "AI Assistant Configuration" section with assistant support, Claude-to-Copilot command mapping, and a shared command catalog tied to concrete skill/prompt files.
+- `skills`: Updated `.claude/skills/audit-docs/SKILL.md` to explicitly verify AI assistant mapping parity between `.claude/skills/` and `.github/prompts/` and to validate mapping command/source accuracy in README.
+- `prompts`: Updated `.github/prompts/audit-docs.prompt.md` with an explicit AI assistant mapping consistency check so `/audit-docs` catches Claude/Copilot mapping drift.
 
 ---
 

@@ -258,22 +258,41 @@ Contributions should preserve the single-responsibility design and the pipeline-
 
 ## AI Assistant Configuration
 
-This repository supports both Claude Code and GitHub Copilot.
+This repository supports both [Claude Code](https://claude.ai/code) and GitHub Copilot Chat, with aligned command
+workflows.
 
-- Claude Code project context and skills remain in `CLAUDE.md` and `.claude/skills/`.
-- GitHub Copilot project instructions are in `.github/copilot-instructions.md`.
-- Reusable Copilot prompt files are in `.github/prompts/`.
+### Assistant support
 
-Prompt files mirror the existing Claude skill set:
+| Assistant      | Configuration Source                        | Command Source                |
+|----------------|---------------------------------------------|-------------------------------|
+| Claude Code    | `CLAUDE.md` and `.claude/skills/*/SKILL.md` | `.claude/skills/`             |
+| GitHub Copilot | `.github/copilot-instructions.md`           | `.github/prompts/*.prompt.md` |
 
-- `audit-docs`
-- `changelog`
-- `docstring`
-- `evaluate`
-- `help-text`
-- `performance`
-- `release-docs`
-- `typing`
+### Command mapping (Claude Code -> GitHub Copilot)
+
+| Workflow     | Claude Command  | Copilot Command |
+|--------------|-----------------|-----------------|
+| Audit Docs   | `/audit-docs`   | `/audit-docs`   |
+| Changelog    | `/changelog`    | `/changelog`    |
+| Docstring    | `/docstring`    | `/docstring`    |
+| Evaluate     | `/evaluate`     | `/evaluate`     |
+| Help Text    | `/help-text`    | `/help-text`    |
+| Performance  | `/performance`  | `/performance`  |
+| Release Docs | `/release-docs` | `/release-docs` |
+| Typing       | `/typing`       | `/typing`       |
+
+### Shared command catalog
+
+| Workflow     | Command         | Claude Skill Source                    | Copilot Prompt Source                    | Purpose                                                                               |
+|--------------|-----------------|----------------------------------------|------------------------------------------|---------------------------------------------------------------------------------------|
+| Audit Docs   | `/audit-docs`   | `.claude/skills/audit-docs/SKILL.md`   | `.github/prompts/audit-docs.prompt.md`   | Verify `README.md`, `CLAUDE.md`, and rubric docs against the current codebase.        |
+| Changelog    | `/changelog`    | `.claude/skills/changelog/SKILL.md`    | `.github/prompts/changelog.prompt.md`    | Generate a commit message and `CHANGELOG.md` entries for staged or described changes. |
+| Docstring    | `/docstring`    | `.claude/skills/docstring/SKILL.md`    | `.github/prompts/docstring.prompt.md`    | Review, generate, or fix Python docstrings for modules, classes, or functions.        |
+| Evaluate     | `/evaluate`     | `.claude/skills/evaluate/SKILL.md`     | `.github/prompts/evaluate.prompt.md`     | Audit Python modules against the project code evaluation rubric.                      |
+| Help Text    | `/help-text`    | `.claude/skills/help-text/SKILL.md`    | `.github/prompts/help-text.prompt.md`    | Evaluate or generate argparse help text using the project help-text rubric.           |
+| Performance  | `/performance`  | `.claude/skills/performance/SKILL.md`  | `.github/prompts/performance.prompt.md`  | Review modules for practical, readability-preserving performance improvements.        |
+| Release Docs | `/release-docs` | `.claude/skills/release-docs/SKILL.md` | `.github/prompts/release-docs.prompt.md` | Generate release notes from `CHANGELOG.md` and update release sections.               |
+| Typing       | `/typing`       | `.claude/skills/typing/SKILL.md`       | `.github/prompts/typing.prompt.md`       | Review type annotation quality against project typing standards.                      |
 
 ---
 
